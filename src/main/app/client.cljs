@@ -18,15 +18,8 @@
 (def ui-person (comp/factory Person))
 
 (defsc Root [this props]
-  (dom/div "TODO"
-           (dom/div "Me too")
-           (dom/p "and me")
-           (dom/h3 "H3!")
-           (dom/p {:style {:fontFamily "sans-serif"}}
-                  "Now code:" (dom/br)
-                  (str "(+ 1 1) => " (+ 1 1)))
-           justHTML
-           (dom/h3 (ui-person {:person/name "Nancy" :person/age 22}))))
+  (dom/div
+    (dom/h3 (ui-person {:person/name "Nancy" :person/age 22}))))
 
 (defn ^:export init
   "Shadow-cljs sets this up to be our entry-point function. See shadow-cljs.edn `:init-fn` in the modules of the main build."
