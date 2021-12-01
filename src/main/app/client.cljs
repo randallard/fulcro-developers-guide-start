@@ -6,14 +6,33 @@
 
 (defonce app (app/fulcro-app))
 
+(def justHTML
+  (dom/div {:className "a" :id "id" :style {:color "red"}}
+           (dom/p "Hello")))
+
+(defsc Person [this {:person/keys [name age]}]
+  (dom/div
+    (dom/p "Name: " name
+           (dom/span {:style {:fontStyle "italic"}} " (Age: " age ")"))))
+
+(def ui-person (comp/factory Person))
+
 (defsc Root [this props]
-       (dom/div "TODO"))
+  (dom/div "TODO"
+           (dom/div "Me too")
+           (dom/p "and me")
+           (dom/h3 "H3!")
+           (dom/p {:style {:fontFamily "sans-serif"}}
+                  "Now code:" (dom/br)
+                  (str "(+ 1 1) => " (+ 1 1)))
+           justHTML
+           (dom/h3 (ui-person {:person/name "Nancy" :person/age 22}))))
 
 (defn ^:export init
-      "Shadow-cljs sets this up to be our entry-point function. See shadow-cljs.edn `:init-fn` in the modules of the main build."
-      []
-      (app/mount! app Root "app")
-      (js/console.log "Loaded"))
+  "Shadow-cljs sets this up to be our entry-point function. See shadow-cljs.edn `:init-fn` in the modules of the main build."
+  []
+  (app/mount! app Root "app")
+  (js/console.log "Loaded"))
 
 (defn ^:export refresh
       "During development, shadow-cljs will call this on every hot reload of source. See shadow-cljs.edn"
@@ -23,3 +42,5 @@
       ;; As of Fulcro 3.3.0, this addition will help with stale queries when using dynamic routing:
       (comp/refresh-dynamic-queries! app)
       (js/console.log "Hot reload"))
+
+(defn f [x] (* x x))
