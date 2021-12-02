@@ -18,12 +18,14 @@
 
 (defsc PersonList [this {:person-list/keys [label people]}]
   (dom/div (dom/h3 label) (dom/ul (map ui-person people))))
-
 (defsc PlanetList [this {:planet-list/keys [label planets]}]
   (dom/div (dom/h3 label) (dom/ul (map ui-planet planets))))
+(defsc DoodleList [this {:doodle-list/keys [label doodles]}]
+  (dom/div (dom/h3 label) (dom/ul (map ui-doodle doodles))))
 
 (def ui-person-list (comp/factory PersonList))
 (def ui-planet-list (comp/factory PlanetList))
+(def ui-doodle-list (comp/factory DoodleList))
 
 (defsc Root [this {:keys [ui/react-key]}]
   (let [ui-data {:people {:person-list/label "People" :person-list/people
@@ -33,15 +35,15 @@
                  :planets {:planet-list/label "Planets" :planet-list/planets
                            [{:planet/name "Kepler-62 e" :planet/esi-percent 82}
                             {:planet/name "Proxima Centauri b" :planet/esi-percent 87}
-                            {:planet/name "Ross 128 b" :planet/esi-percent 86}]}}]
+                            {:planet/name "Ross 128 b" :planet/esi-percent 86}]}
+                 :doodles {:doodle-list/label "Google Doodles" :doodle-list/doodles
+                           [{:doodle/name "Fischinger"
+                             :doodle/url  "https://www.google.com/logos/doodles/2017/fischinger/fischinger17.9.html?hl=en"}
+                            {:doodle/name "Great Union Day 2021"
+                             :doodle/url  "https://www.google.com/doodles/great-union-day-2021"}
+                            {:doodle/name "Josephine Baker's 111th Birthday"
+                             :doodle/url  "https://www.google.com/doodles/josephine-bakers-111th-birthday"}]}}]
     (dom/div {:style {:fontFamily "sans-serif"}}
              (ui-person-list (:people ui-data))
              (ui-planet-list (:planets ui-data))
-             (dom/h3 "Google Doodles")
-             (dom/ul
-               (dom/li (ui-doodle {:doodle/name "Fischinger"
-                                   :doodle/url  "https://www.google.com/logos/doodles/2017/fischinger/fischinger17.9.html?hl=en"}))
-               (dom/li (ui-doodle {:doodle/name "Great Union Day 2021"
-                                   :doodle/url  "https://www.google.com/doodles/great-union-day-2021"}))
-               (dom/li (ui-doodle {:doodle/name "Josephine Baker's 111th Birthday"
-                                   :doodle/url  "https://www.google.com/doodles/josephine-bakers-111th-birthday"}))))))
+             (ui-doodle-list (:doodles ui-data)))))
