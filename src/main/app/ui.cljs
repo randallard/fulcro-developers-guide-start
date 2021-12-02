@@ -10,7 +10,7 @@
   (dom/li name (dom/span {:style {:fontStyle "italic"}} " (ESI " esi-percent "%)")))
 
 (defsc Doodle [this {:doodle/keys [name url]}]
-  (dom/p (dom/a {:href url :target "_blank"} name)))
+  (dom/li (dom/a {:href url :target "_blank"} name)))
 
 (def ui-planet (comp/factory Planet))
 (def ui-person (comp/factory Person))
