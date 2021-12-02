@@ -8,13 +8,14 @@
   (dom/li name (dom/span {:style {:fontStyle "italic"}} " (Age " age ")")))
 
 (defsc Planet [this {:planet/keys [name esi-percent]}]
+  {:initial-state (fn [{:keys [name esi-percent] :as params}] {:planet/name name :planet/esi-percent esi-percent})}
   (dom/li name (dom/span {:style {:fontStyle "italic"}} " (ESI " esi-percent "%)")))
 
 (defsc Doodle [this {:doodle/keys [name url]}]
   (dom/li (dom/a {:href url :target "_blank"} name)))
 
 (def ui-person (comp/factory Person {:keyfn :person/name}))
-(def ui-planet (comp/factory Planet))
+(def ui-planet (comp/factory Planet {:keyfn :planet/name}))
 (def ui-doodle (comp/factory Doodle))
 
 (defsc PersonList [this {:person-list/keys [label people]}]
@@ -26,6 +27,11 @@
   (dom/div (dom/h3 label) (dom/ul (map ui-person people))))
 
 (defsc PlanetList [this {:planet-list/keys [label planets]}]
+  {:initial-state (fn [{:keys [label]}]
+                    {:planet-list/label   label
+                     :planet-list/planets [(comp/get-initial-state Planet {:name "Kepler-62 e" :esi-percent 82})
+                                           (comp/get-initial-state Planet {:name "Proxima Centauri b" :esi-percent 87})
+                                           (comp/get-initial-state Planet {:name "Ross 128 b" :esi-percent 86})]})}
   (dom/div (dom/h3 label) (dom/ul (map ui-planet planets))))
 
 (defsc DoodleList [this {:doodle-list/keys [label doodles]}]
@@ -35,13 +41,10 @@
 (def ui-planet-list (comp/factory PlanetList))
 (def ui-doodle-list (comp/factory DoodleList))
 
-(defsc Root [this {:keys [people]}]
-  {:initial-state (fn [params] {:people (comp/get-initial-state PersonList {:label "People"})})}
-  (let [ui-data {:planets {:planet-list/label "Planets" :planet-list/planets
-                           [{:planet/name "Kepler-62 e" :planet/esi-percent 82}
-                            {:planet/name "Proxima Centauri b" :planet/esi-percent 87}
-                            {:planet/name "Ross 128 b" :planet/esi-percent 86}]}
-                 :doodles {:doodle-list/label "Google Doodles" :doodle-list/doodles
+(defsc Root [this {:keys [people planets]}]
+  {:initial-state (fn [params] {:people (comp/get-initial-state PersonList {:label "People"})
+                                :planets (comp/get-initial-state PlanetList {:label "Planets"})})}
+  (let [ui-data {:doodles {:doodle-list/label "Google Doodles" :doodle-list/doodles
                            [{:doodle/name "Fischinger"
                              :doodle/url  "https://www.google.com/logos/doodles/2017/fischinger/fischinger17.9.html?hl=en"}
                             {:doodle/name "Great Union Day 2021"
@@ -50,5 +53,5 @@
                              :doodle/url  "https://www.google.com/doodles/josephine-bakers-111th-birthday"}]}}]
     (dom/div {:style {:fontFamily "sans-serif"}}
              (ui-person-list people)
-             (ui-planet-list (:planets ui-data))
+             (ui-planet-list planets)
              (ui-doodle-list (:doodles ui-data)))))
