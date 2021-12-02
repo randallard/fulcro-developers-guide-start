@@ -7,7 +7,7 @@
   (dom/li name (dom/span {:style {:fontStyle "italic"}} " (Age " age ")")))
 
 (defsc Planet [this {:planet/keys [name esi-percent]}]
-  (dom/p name (dom/span {:style {:fontStyle "italic"}} " (ESI " esi-percent "%)")))
+  (dom/li name (dom/span {:style {:fontStyle "italic"}} " (ESI " esi-percent "%)")))
 
 (defsc Doodle [this {:doodle/keys [name url]}]
   (dom/p (dom/a {:href url :target "_blank"} name)))
@@ -19,20 +19,24 @@
 (defsc PersonList [this {:person-list/keys [label people]}]
   (dom/div (dom/h3 label) (dom/ul (map ui-person people))))
 
+(defsc PlanetList [this {:planet-list/keys [label planets]}]
+  (dom/div (dom/h3 label) (dom/ul (map ui-planet planets))))
+
 (def ui-person-list (comp/factory PersonList))
+(def ui-planet-list (comp/factory PlanetList))
 
 (defsc Root [this {:keys [ui/react-key]}]
-  (let [ui-data {:person-list/label "People" :person-list/people
-                 [{:person/name "Joe" :person/age 22}
-                  {:person/name "Katch" :person/age 93}
-                  {:person/name "Stank" :person/age 44}]}]
+  (let [ui-data {:people {:person-list/label "People" :person-list/people
+                          [{:person/name "Joe" :person/age 22}
+                           {:person/name "Katch" :person/age 93}
+                           {:person/name "Stank" :person/age 44}]}
+                 :planets {:planet-list/label "Planets" :planet-list/planets
+                           [{:planet/name "Kepler-62 e" :planet/esi-percent 82}
+                            {:planet/name "Proxima Centauri b" :planet/esi-percent 87}
+                            {:planet/name "Ross 128 b" :planet/esi-percent 86}]}}]
     (dom/div {:style {:fontFamily "sans-serif"}}
-             (ui-person-list ui-data)
-             (dom/h3 "Planets")
-             (dom/ul
-               (dom/li (ui-planet {:planet/name "Kepler-62 e" :planet/esi-percent 82}))
-               (dom/li (ui-planet {:planet/name "Proxima Centauri b" :planet/esi-percent 87}))
-               (dom/li (ui-planet {:planet/name "Ross 128 b" :planet/esi-percent 86})))
+             (ui-person-list (:people ui-data))
+             (ui-planet-list (:planets ui-data))
              (dom/h3 "Google Doodles")
              (dom/ul
                (dom/li (ui-doodle {:doodle/name "Fischinger"
