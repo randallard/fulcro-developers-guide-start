@@ -13,12 +13,13 @@
 (defsc Planet [this {:planet/keys [name esi-percent]} {:keys [onDelete]}]
   {:query [:planet/name :planet/esi-percent]
    :initial-state (fn [{:keys [name esi-percent] :as params}] {:planet/name name :planet/esi-percent esi-percent})}
-  (dom/li name (dom/span {:style {:fontStyle "italic"}} (str " (ESI " esi-percent "%)"))
+  (dom/li name (dom/span {:style {:fontStyle "italic"}} (str " (ESI " esi-percent "%) "))
           (dom/button {:onClick #(onDelete name)} " Delete ")))
 
-(defsc Doodle [this {:doodle/keys [name url]}]
-  {:initial-state (fn [{:keys [name url] :as params }] {:doodle/name name :doodle/url url})}
-  (dom/li (dom/a {:href url :target "_blank"} name)))
+(defsc Doodle [this {:doodle/keys [name url]} {:keys [onDelete]}]
+  {:query [:doodle/name :doodle/url]
+   :initial-state (fn [{:keys [name url] :as params }] {:doodle/name name :doodle/url url})}
+  (dom/li (dom/a {:href url :target "_blank"} name) " " (dom/button {:onClick #(onDelete name)} " Delete ")))
 
 (defsc ClojureSite [this {:clj-site/keys [name url]}]
   {:initial-state (fn [{:keys [name url] :as params}] {:clj-site/name name :clj-site/url url})}
@@ -52,7 +53,8 @@
                               (map (fn [p] (ui-planet (comp/computed p {:onDelete delete-planet}))) planets)))))
 
 (defsc DoodleList [this {:doodle-list/keys [label doodles]}]
-  {:initial-state (fn [{:keys [label]}]
+  {:query [:doodle-list/label {:doodle-list/doodles (comp/get-query Doodle)}]
+   :initial-state (fn [{:keys [label]}]
                     {:doodle-list/label   label
                      :doodle-list/doodles [(comp/get-initial-state Doodle {:name "Fischinger"
                                                                            :url  "https://www.google.com/logos/doodles/2017/fischinger/fischinger17.9.html?hl=en"})
@@ -60,7 +62,9 @@
                                                                            :url  "https://www.google.com/doodles/great-union-day-2021"})
                                            (comp/get-initial-state Doodle {:name "Josephine Baker's 111th Birthday"
                                                                            :url  "https://www.google.com/doodles/josephine-bakers-111th-birthday"})]})}
-  (dom/div (dom/h3 label) (dom/ul (map ui-doodle doodles))))
+  (let [delete-doodle (fn [name] (println label "asked to delete " name))]
+    (dom/div (dom/h3 label) (dom/ul
+                              (map (fn [p] (ui-doodle (comp/computed p {:onDelete delete-doodle}))) doodles)))))
 
 (defsc ClojureSiteList [this {:clj-site/keys [label clj-sites]}]
   {:initial-state (fn [{:keys [label]}]
@@ -78,11 +82,12 @@
 (def ui-doodle-list (comp/factory DoodleList))
 (def ui-clj-site-list (comp/factory ClojureSiteList))
 
-(defsc Root [this {:keys [people planets
-                          ; doodles clj-sites
+(defsc Root [this {:keys [people planets doodles
+                          ; clj-sites
                           ]}]
   {:query         [{:people (comp/get-query PersonList)}
-                   {:planets (comp/get-query PlanetList)}]
+                   {:planets (comp/get-query PlanetList)}
+                   {:doodles (comp/get-query DoodleList)}]
    :initial-state (fn [params] {:people    (comp/get-initial-state PersonList {:label "People"})
                                 :planets   (comp/get-initial-state PlanetList {:label "Planets"})
                                 :doodles   (comp/get-initial-state DoodleList {:label "Google Doodles"})
@@ -90,6 +95,6 @@
   (dom/div {:style {:fontFamily "sans-serif"}}
            (ui-person-list people)
            (ui-planet-list planets)
-           ;(ui-doodle-list doodles)
+           (ui-doodle-list doodles)
            ;(ui-clj-site-list clj-sites)
            ))
