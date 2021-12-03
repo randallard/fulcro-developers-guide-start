@@ -37,8 +37,7 @@
                      :person-list/people [(comp/get-initial-state Person {:name "Joe" :age 22})
                                           (comp/get-initial-state Person {:name "Katch" :age 93})
                                           (comp/get-initial-state Person {:name "Stank" :age 44})]})}
-  (let [delete-person (fn [name] (comp/transact! this
-                                                             [(api/delete-person {:name name})]))]
+  (let [delete-person (fn [name] (comp/transact! this [(api/delete-person {:name name})]))]
     (dom/div (dom/h3 label) (dom/ul
                               (map (fn [p] (ui-person (comp/computed p {:onDelete delete-person}))) people)))))
 
@@ -49,7 +48,7 @@
                      :planet-list/planets [(comp/get-initial-state Planet {:name "Kepler-62 e" :esi-percent 82})
                                            (comp/get-initial-state Planet {:name "Proxima Centauri b" :esi-percent 87})
                                            (comp/get-initial-state Planet {:name "Ross 128 b" :esi-percent 86})]})}
-  (let [delete-planet (fn [name] (println label "asked to delete " name))]
+  (let [delete-planet (fn [name] (comp/transact! this [(api/delete-planet {:name name})]))]
     (dom/div (dom/h3 label) (dom/ul
                               (map (fn [p] (ui-planet (comp/computed p {:onDelete delete-planet}))) planets)))))
 
