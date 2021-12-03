@@ -15,9 +15,14 @@
   {:initial-state (fn [{:keys [name url] :as params}] {:doodle/name name :doodle/url url})}
   (dom/li (dom/a {:href url :target "_blank"} name)))
 
+(defsc ClojureSite [this {:clj-site/keys [name url]}]
+  {:initial-state (fn [{:keys [name url] :as params}] {:clj-site/name name :clj-site/url url})}
+  (dom/li (dom/a {:href url :target "_blank"} name)))
+
 (def ui-person (comp/factory Person {:keyfn :person/name}))
 (def ui-planet (comp/factory Planet {:keyfn :planet/name}))
 (def ui-doodle (comp/factory Doodle {:keyfn :planet/name}))
+(def ui-clj-site (comp/factory ClojureSite {:keyfn :clj-site/name}))
 
 (defsc PersonList [this {:person-list/keys [label people]}]
   {:initial-state (fn [{:keys [label]}]
@@ -46,15 +51,29 @@
                                                                            :url  "https://www.google.com/doodles/josephine-bakers-111th-birthday"})]})}
   (dom/div (dom/h3 label) (dom/ul (map ui-doodle doodles))))
 
+(defsc ClojureSiteList [this {:clj-site/keys [label clj-sites]}]
+  {:initial-state (fn [{:keys [label]}]
+                    {:clj-site/label label
+                     :clj-site/clj-sites [(comp/get-initial-state ClojureSite {:name "Exercism.org"
+                                                                           :url "https://exercism.org/tracks/clojure"})
+                                      (comp/get-initial-state ClojureSite {:name "Brave Clojure"
+                                                                           :url "https://www.braveclojure.com/"})
+                                      (comp/get-initial-state ClojureSite {:name "Clojurians Slack"
+                                                                           :url "https://clojurians.slack.com/"})]})}
+  (dom/div (dom/h3 label) (dom/ul (map ui-clj-site clj-sites))))
+
 (def ui-person-list (comp/factory PersonList))
 (def ui-planet-list (comp/factory PlanetList))
 (def ui-doodle-list (comp/factory DoodleList))
+(def ui-clj-site-list (comp/factory ClojureSiteList))
 
-(defsc Root [this {:keys [people planets doodles]}]
+(defsc Root [this {:keys [people planets doodles clj-sites]}]
   {:initial-state (fn [params] {:people (comp/get-initial-state PersonList {:label "People"})
                                 :planets (comp/get-initial-state PlanetList {:label "Planets"})
-                                :doodles (comp/get-initial-state DoodleList {:label "Google Doodles"})})}
+                                :doodles (comp/get-initial-state DoodleList {:label "Google Doodles"})
+                                :clj-sites (comp/get-initial-state ClojureSiteList {:label "Clojure Resources"})})}
   (dom/div {:style {:fontFamily "sans-serif"}}
            (ui-person-list people)
            (ui-planet-list planets)
-           (ui-doodle-list doodles)))
+           (ui-doodle-list doodles)
+           (ui-clj-site-list clj-sites)))
