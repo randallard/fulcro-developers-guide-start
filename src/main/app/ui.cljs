@@ -3,9 +3,11 @@
     [com.fulcrologic.fulcro.components :as comp :refer [defsc]]
     [com.fulcrologic.fulcro.dom :as dom]))
 
-(defsc Person [this {:person/keys [name age]}]
-  {:initial-state (fn [{:keys [name age] :as params}] {:person/name name :person/age age})}
-  (dom/li name (dom/span {:style {:fontStyle "italic"}} " (Age " age ")")))
+(defsc Person [this {:person/keys [name age]} {:keys [onDelete]}]
+  {:query [:person/name :person/age]
+   :initial-state (fn [{:keys [name age] :as params}] {:person/name name :person/age age})}
+  (dom/li name (dom/span {:style {:fontStyle "italic"}} (str "  (Age " age ") "))
+          (dom/button {:onClick #(onDelete name)} "Delete")))
 
 (defsc Planet [this {:planet/keys [name esi-percent]}]
   {:initial-state (fn [{:keys [name esi-percent] :as params}] {:planet/name name :planet/esi-percent esi-percent})}
@@ -25,12 +27,15 @@
 (def ui-clj-site (comp/factory ClojureSite {:keyfn :clj-site/name}))
 
 (defsc PersonList [this {:person-list/keys [label people]}]
-  {:initial-state (fn [{:keys [label]}]
+  {:query [:person-list/label {:person-list/people (comp/get-query Person)}]
+   :initial-state (fn [{:keys [label]}]
                     {:person-list/label  label
                      :person-list/people [(comp/get-initial-state Person {:name "Joe" :age 22})
                                           (comp/get-initial-state Person {:name "Katch" :age 93})
                                           (comp/get-initial-state Person {:name "Stank" :age 44})]})}
-  (dom/div (dom/h3 label) (dom/ul (map ui-person people))))
+  (let [delete-person (fn [name] (println label "asked to delete " name))]
+    (dom/div (dom/h3 label) (dom/ul
+                              (map (fn [p] (ui-person (comp/computed p {:onDelete delete-person}))) people)))))
 
 (defsc PlanetList [this {:planet-list/keys [label planets]}]
   {:initial-state (fn [{:keys [label]}]
@@ -67,13 +72,17 @@
 (def ui-doodle-list (comp/factory DoodleList))
 (def ui-clj-site-list (comp/factory ClojureSiteList))
 
-(defsc Root [this {:keys [people planets doodles clj-sites]}]
-  {:initial-state (fn [params] {:people (comp/get-initial-state PersonList {:label "People"})
+(defsc Root [this {:keys [people
+                          ;planets doodles clj-sites
+                          ]}]
+  {:query [{:people (comp/get-query PersonList)}]
+   :initial-state (fn [params] {:people (comp/get-initial-state PersonList {:label "People"})
                                 :planets (comp/get-initial-state PlanetList {:label "Planets"})
                                 :doodles (comp/get-initial-state DoodleList {:label "Google Doodles"})
                                 :clj-sites (comp/get-initial-state ClojureSiteList {:label "Clojure Resources"})})}
   (dom/div {:style {:fontFamily "sans-serif"}}
            (ui-person-list people)
-           (ui-planet-list planets)
-           (ui-doodle-list doodles)
-           (ui-clj-site-list clj-sites)))
+           ;(ui-planet-list planets)
+           ;(ui-doodle-list doodles)
+           ;(ui-clj-site-list clj-sites)
+           ))
