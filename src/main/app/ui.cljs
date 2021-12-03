@@ -12,11 +12,12 @@
   (dom/li name (dom/span {:style {:fontStyle "italic"}} " (ESI " esi-percent "%)")))
 
 (defsc Doodle [this {:doodle/keys [name url]}]
+  {:initial-state (fn [{:keys [name url] :as params}] {:doodle/name name :doodle/url url})}
   (dom/li (dom/a {:href url :target "_blank"} name)))
 
 (def ui-person (comp/factory Person {:keyfn :person/name}))
 (def ui-planet (comp/factory Planet {:keyfn :planet/name}))
-(def ui-doodle (comp/factory Doodle))
+(def ui-doodle (comp/factory Doodle {:keyfn :planet/name}))
 
 (defsc PersonList [this {:person-list/keys [label people]}]
   {:initial-state (fn [{:keys [label]}]
@@ -35,23 +36,25 @@
   (dom/div (dom/h3 label) (dom/ul (map ui-planet planets))))
 
 (defsc DoodleList [this {:doodle-list/keys [label doodles]}]
+  {:initial-state (fn [{:keys [label]}]
+                    {:doodle-list/label   label
+                     :doodle-list/doodles [(comp/get-initial-state Doodle {:name "Fischinger"
+                                                                           :url  "https://www.google.com/logos/doodles/2017/fischinger/fischinger17.9.html?hl=en"})
+                                           (comp/get-initial-state Doodle {:name "Great Union Day 2021"
+                                                                           :url  "https://www.google.com/doodles/great-union-day-2021"})
+                                           (comp/get-initial-state Doodle {:name "Josephine Baker's 111th Birthday"
+                                                                           :url  "https://www.google.com/doodles/josephine-bakers-111th-birthday"})]})}
   (dom/div (dom/h3 label) (dom/ul (map ui-doodle doodles))))
 
 (def ui-person-list (comp/factory PersonList))
 (def ui-planet-list (comp/factory PlanetList))
 (def ui-doodle-list (comp/factory DoodleList))
 
-(defsc Root [this {:keys [people planets]}]
+(defsc Root [this {:keys [people planets doodles]}]
   {:initial-state (fn [params] {:people (comp/get-initial-state PersonList {:label "People"})
-                                :planets (comp/get-initial-state PlanetList {:label "Planets"})})}
-  (let [ui-data {:doodles {:doodle-list/label "Google Doodles" :doodle-list/doodles
-                           [{:doodle/name "Fischinger"
-                             :doodle/url  "https://www.google.com/logos/doodles/2017/fischinger/fischinger17.9.html?hl=en"}
-                            {:doodle/name "Great Union Day 2021"
-                             :doodle/url  "https://www.google.com/doodles/great-union-day-2021"}
-                            {:doodle/name "Josephine Baker's 111th Birthday"
-                             :doodle/url  "https://www.google.com/doodles/josephine-bakers-111th-birthday"}]}}]
-    (dom/div {:style {:fontFamily "sans-serif"}}
-             (ui-person-list people)
-             (ui-planet-list planets)
-             (ui-doodle-list (:doodles ui-data)))))
+                                :planets (comp/get-initial-state PlanetList {:label "Planets"})
+                                :doodles (comp/get-initial-state DoodleList {:label "Google Doodles"})})}
+  (dom/div {:style {:fontFamily "sans-serif"}}
+           (ui-person-list people)
+           (ui-planet-list planets)
+           (ui-doodle-list doodles)))
