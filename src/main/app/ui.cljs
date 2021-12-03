@@ -62,7 +62,7 @@
                                                                            :url  "https://www.google.com/doodles/great-union-day-2021"})
                                            (comp/get-initial-state Doodle {:name "Josephine Baker's 111th Birthday"
                                                                            :url  "https://www.google.com/doodles/josephine-bakers-111th-birthday"})]})}
-  (let [delete-doodle (fn [name] (println label "asked to delete " name))]
+  (let [delete-doodle (fn [name] (comp/transact! this [(api/delete-doodle {:name name})]))]
     (dom/div (dom/h3 label) (dom/ul
                               (map (fn [p] (ui-doodle (comp/computed p {:onDelete delete-doodle}))) doodles)))))
 

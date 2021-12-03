@@ -19,3 +19,12 @@
                 new-list (vec (filter #(not= (:planet/name %) name) old-list))]
             (swap! state assoc-in path new-list))))
 
+(defmutation delete-doodle
+  "Mutation: Delete the doodle with `name` from the list"
+  [{:keys [name]}]
+  (action [{:keys [state]}]
+          (let [path [:doodles :doodle-list/doodles]
+                old-list (get-in @state path)
+                new-list (vec (filter #(not= (:doodle/name %) name) old-list))]
+            (swap! state assoc-in path new-list))))
+
