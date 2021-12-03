@@ -37,7 +37,8 @@
                      :person-list/people [(comp/get-initial-state Person {:name "Joe" :age 22})
                                           (comp/get-initial-state Person {:name "Katch" :age 93})
                                           (comp/get-initial-state Person {:name "Stank" :age 44})]})}
-  (let [delete-person (fn [name] (println label "asked to delete " name))]
+  (let [delete-person (fn [name] (comp/transact! this
+                                                             [(api/delete-person {:name name})]))]
     (dom/div (dom/h3 label) (dom/ul
                               (map (fn [p] (ui-person (comp/computed p {:onDelete delete-person}))) people)))))
 

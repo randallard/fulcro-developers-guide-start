@@ -3,9 +3,10 @@
 
 (defmutation delete-person
   "Mutation: Delete the person with `name` from the list with `list-name`"
-  [{:keys [list-name name]}] ; (1)
+  [{:keys [name]}] ; (1)
   (action [{:keys [state]}] ; (2)
-          (let [path [:people :people-list/people]
+          (let [path [:people :person-list/people]
                 old-list (get-in @state path)
                 new-list (vec (filter #(not= (:person/name %) name) old-list))]
             (swap! state assoc-in path new-list))))
+
