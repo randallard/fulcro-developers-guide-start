@@ -11,12 +11,10 @@
 
 (defmutation delete-planet
   "Mutation: Delete the planet with `name` from the list"
-  [{:keys [name]}]
+  [{list-id :planet-list/id
+    planet-id :planet/id}]
   (action [{:keys [state]}]
-          (let [path [:planets :planet-list/planets]
-                old-list (get-in @state path)
-                new-list (vec (filter #(not= (:planet/name %) name) old-list))]
-            (swap! state assoc-in path new-list))))
+          (swap! state merge/remove-ident* [:planet/id planet-id] [:planet-list/id list-id :planet-list/planets])))
 
 (defmutation delete-doodle
   "Mutation: Delete the doodle with `name` from the list"
