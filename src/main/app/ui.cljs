@@ -21,7 +21,7 @@
 
 (def ui-person (comp/factory Person {:keyfn :person/name}))
 (def ui-planet (comp/factory Planet {:keyfn :planet/name}))
-(def ui-doodle (comp/factory Doodle {:keyfn :planet/name}))
+(def ui-doodle (comp/factory Doodle {:keyfn :doodle/name}))
 (def ui-clj-site (comp/factory ClojureSite {:keyfn :clj-site/name}))
 
 (defsc PersonList [this {:person-list/keys [label people]}]
