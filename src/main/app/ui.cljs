@@ -6,15 +6,13 @@
 
 (defsc Person [this {:person/keys [id name age] :as props} {:keys [onDelete]}]
   {:query [:person/id :person/name :person/age]
-   :ident (fn [] [:person/id (:person/id props)])
-   :initial-state (fn [{:keys [id name age] :as params}] {:person/id id :person/name name :person/age age})}
+   :ident (fn [] [:person/id (:person/id props)])}
   (dom/li name (dom/span {:style {:fontStyle "italic"}} (str "  (Age " age ") "))
           (dom/button {:onClick #(onDelete id)} " Delete ")))
 
 (defsc Planet [this {:planet/keys [id name esi-percent] :as props} {:keys [onDelete]}]
   {:query [:planet/id :planet/name :planet/esi-percent]
-   :ident (fn [] [:planet/id (:planet/id props)])
-   :initial-state (fn [{:keys [id name esi-percent] :as params}] {:planet/id id :planet/name name :planet/esi-percent esi-percent})}
+   :ident (fn [] [:planet/id (:planet/id props)])}
   (dom/li name (dom/span {:style {:fontStyle "italic"}} (str " (ESI " esi-percent "%) "))
           (dom/button {:onClick #(onDelete id)} " Delete ")))
 
@@ -34,30 +32,13 @@
 
 (defsc PersonList [this {:person-list/keys [id label people] :as props}]
   {:query         [:person-list/id :person-list/label {:person-list/people (comp/get-query Person)}]
-   :ident         (fn [] [:person-list/id (:person-list/id props)])
-   :initial-state (fn [{:keys [id label]}]
-                    {:person-list/id     id
-                     :person-list/label  label
-                     :person-list/people (if (= id :dancers) [(comp/get-initial-state Person {:id 1 :name "Joe" :age 22})
-                                                              (comp/get-initial-state Person {:id 2 :name "Katch" :age 93})
-                                                              (comp/get-initial-state Person {:id 3 :name "Brandon" :age 40 })]
-                                                             [(comp/get-initial-state Person {:id 4 :name "Stank" :age 44})
-                                                              (comp/get-initial-state Person {:id 5 :name "Phil" :age 70})])})}
+   :ident         (fn [] [:person-list/id (:person-list/id props)])}
   (let [delete-person (fn [person-id] (comp/transact! this [(api/delete-person {:person-list/id id :person/id person-id})]))]
     (dom/div (dom/h3 label) (dom/ul (map #(ui-person (comp/computed % {:onDelete delete-person})) people)))))
 
 (defsc PlanetList [this {:planet-list/keys [id label planets] :as props}]
   {:query         [:planet-list/id :planet-list/label {:planet-list/planets (comp/get-query Planet)}]
-   :ident         (fn [] [:planet-list/id (:planet-list/id props)])
-   :initial-state (fn [{:keys [id label]}]
-                    {:planet-list/id      id
-                     :planet-list/label   label
-                     :planet-list/planets (if (= id :habitable) [(comp/get-initial-state Planet {:id 1 :name "Earth" :esi-percent 100})
-                                                                 (comp/get-initial-state Planet {:id 2 :name "Kepler-62 e" :esi-percent 82})
-                                                                 (comp/get-initial-state Planet {:id 3 :name "Proxima Centauri b" :esi-percent 87})
-                                                                 (comp/get-initial-state Planet {:id 4 :name "Ross 128 b" :esi-percent 86})]
-                                                                [(comp/get-initial-state Planet {:id 5 :name "Mercury" :esi-percent 60})
-                                                                 (comp/get-initial-state Planet {:id 6 :name "Saturn" :esi-percent 25})])})}
+   :ident         (fn [] [:planet-list/id (:planet-list/id props)])}
   (let [delete-planet (fn [planet-id] (comp/transact! this [(api/delete-planet {:planet-list/id id :planet/id planet-id})]))]
     (dom/div (dom/h3 label) (dom/ul (map #(ui-planet (comp/computed % {:onDelete delete-planet})) planets)))))
 
@@ -99,17 +80,19 @@
                    {:habitable (comp/get-query PlanetList)}
                    {:not-habitable (comp/get-query PlanetList)}
                    {:doodles (comp/get-query DoodleList)}]
-   :initial-state (fn [params] {:dancers       (comp/get-initial-state PersonList {:id :dancers :label "Dancers"})
-                                :not-dancers   (comp/get-initial-state PersonList {:id :not-dancers :label "Not Dancers"})
-                                :habitable     (comp/get-initial-state PlanetList {:id :habitable :label "Habitable(?)"})
-                                :not-habitable (comp/get-initial-state PlanetList {:id :not-habitable :label "Not Habitable"})
-                                :doodles       (comp/get-initial-state DoodleList {:label "Google Doodles"})
-                                :clj-sites     (comp/get-initial-state ClojureSiteList {:label "Clojure Resources"})})}
+   :initial-state {}}
   (dom/div {:style {:fontFamily "sans-serif"}}
-           (ui-person-list dancers)
-           (ui-person-list not-dancers)
-           (ui-planet-list habitable)
-           (ui-planet-list not-habitable)
-           (ui-doodle-list doodles)
+           (when (not (or dancers not-dancers habitable not-habitable doodles))
+             (dom/h3 "Lists currently contain no data"))
+           (when dancers
+             (ui-person-list dancers))
+           (when not-dancers
+             (ui-person-list not-dancers))
+           (when habitable
+             (ui-planet-list habitable))
+           (when not-habitable
+             (ui-planet-list not-habitable))
+           (when doodles
+             (ui-doodle-list doodles))
            ;(ui-clj-site-list clj-sites)
            ))

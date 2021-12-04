@@ -20,7 +20,7 @@
                  :list/people [5 4]}
    :friends     {:list/id     :friends
                  :list/label  "Friends"
-                 :list/people [1 2 3]}})
+                 :list/people [3 4 5]}})
 
 ;; Given :person/id, this can generate the details of a person
 (pc/defresolver person-resolver [env {:person/keys [id]}]
