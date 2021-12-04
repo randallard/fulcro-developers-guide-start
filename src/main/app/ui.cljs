@@ -72,27 +72,28 @@
 (def ui-doodle-list (comp/factory DoodleList))
 (def ui-clj-site-list (comp/factory ClojureSiteList))
 
-(defsc Root [this {:keys [dancers not-dancers habitable not-habitable doodles
+(defsc Root [this {:keys [friends dancers not-dancers ;habitable not-habitable doodles
                           ; clj-sites
                           ]}]
-  {:query         [{:dancers (comp/get-query PersonList)}
+  {:query         [{:friends (comp/get-query PersonList)}
+                   {:dancers (comp/get-query PersonList)}
                    {:not-dancers (comp/get-query PersonList)}
-                   {:habitable (comp/get-query PlanetList)}
-                   {:not-habitable (comp/get-query PlanetList)}
-                   {:doodles (comp/get-query DoodleList)}]
+                   ;{:habitable (comp/get-query PlanetList)}
+                   ;{:not-habitable (comp/get-query PlanetList)}
+                   ;{:doodles (comp/get-query DoodleList)}
+                   ]
    :initial-state {}}
   (dom/div {:style {:fontFamily "sans-serif"}}
-           (when (not (or dancers not-dancers habitable not-habitable doodles))
+           (when (not (or friends dancers not-dancers       ; habitable not-habitable doodles
+                          ))
              (dom/h3 "Lists currently contain no data"))
+           (when friends
+             (ui-person-list friends))
            (when dancers
              (ui-person-list dancers))
-           (when not-dancers
-             (ui-person-list not-dancers))
-           (when habitable
-             (ui-planet-list habitable))
-           (when not-habitable
-             (ui-planet-list not-habitable))
-           (when doodles
-             (ui-doodle-list doodles))
+           (when not-dancers (ui-person-list not-dancers))
+           ;(when habitable (ui-planet-list habitable))
+           ;(when not-habitable (ui-planet-list not-habitable))
+           ;(when doodles (ui-doodle-list doodles))
            ;(ui-clj-site-list clj-sites)
            ))
