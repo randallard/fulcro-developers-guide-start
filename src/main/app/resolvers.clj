@@ -38,16 +38,13 @@
                    :person-list/people [5 4]}
      :friends     {:person-list/id     :friends
                    :person-list/label  "Friends"
-                   :person-list/people [3 4 5]}}))
-
-(def planet-list-table
-  (atom
-    {:habitable     {:planet-list/id      :habitable
-                     :planet-list/label   "Habitable?"
-                     :planet-list/planets [1 2 3 4]}
+                   :person-list/people [3 4 5]}
+     :habitable   {:planet-list/id    :habitable
+                   :planet-list/label   "Habitable?"
+                   :planet-list/planets [1 2 3 4]}
      :not-habitable {:planet-list/id      :not-habitable
-                     :planet-list/label   "Not Habitable"
-                     :planet-list/planets [5 6]}}))
+                   :planet-list/label   "Not Habitable"
+                   :planet-list/planets [5 6]}}))
 
 (def site-list-table
   {:clojure-resources {:site-list/id    :clojure-resources
@@ -85,7 +82,7 @@
 (pc/defresolver planet-list-resolver [env {:planet-list/keys [id]}]
                 {::pc/input #{:planet-list/id}
                  ::pc/output [:planet-list/label {:planet-list/planets [:planet/id]}]}
-                (when-let [list (get @planet-list-table id)]
+                (when-let [list (get @list-table id)]
                   (assoc list
                     :planet-list/planets (mapv (fn [id] {:planet/id id}) (:planet-list/planets list)))))
 

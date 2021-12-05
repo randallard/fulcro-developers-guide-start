@@ -1,6 +1,6 @@
 (ns app.mutations
   (:require
-    [app.resolvers :refer [list-table planet-list-table]]
+    [app.resolvers :refer [list-table]]
     [com.wsscode.pathom.connect :as pc]
     [taoensso.timbre :as log]))
 
@@ -22,6 +22,6 @@
                                     planet-id :planet/id}]
                 {::pc/sym `delete-planet}
                 (log/info "Deleting planet" planet-id "from list " list-id)
-                (swap! planet-list-table update list-id update :planet-list/planets (fn [old-list] (filterv #(not= planet-id %) old-list))))
+                (swap! list-table update list-id update :planet-list/planets (fn [old-list] (filterv #(not= planet-id %) old-list))))
 
 (def mutations [delete-person delete-planet])
