@@ -21,14 +21,15 @@
    :initial-state (fn [{:keys [name url] :as params }] {:doodle/name name :doodle/url url})}
   (dom/li (dom/a {:href url :target "_blank"} name) " " (dom/button {:onClick #(onDelete name)} " Delete ")))
 
-(defsc ClojureSite [this {:clj-site/keys [name url]}]
-  {:initial-state (fn [{:keys [name url] :as params}] {:clj-site/name name :clj-site/url url})}
-  (dom/li (dom/a {:href url :target "_blank"} name)))
+(defsc Site [this {:site/keys [id name url] :as props} {:keys [onDelete]}]
+  {:query [:site/id :site/name :site/url]
+   :ident (fn [] [:site/id (:site/id props)])}
+  (dom/li (dom/a {:href url :target "_blank"} name) " " (dom/button {:onClick #(onDelete name)} " Delete ")))
 
 (def ui-person (comp/factory Person {:keyfn :person/id}))
 (def ui-planet (comp/factory Planet {:keyfn :planet/id}))
 (def ui-doodle (comp/factory Doodle {:keyfn :doodle/name}))
-(def ui-clj-site (comp/factory ClojureSite {:keyfn :clj-site/name}))
+(def ui-site (comp/factory Site {:keyfn :site/name}))
 
 (defsc PersonList [this {:person-list/keys [id label people] :as props}]
   {:query         [:person-list/id :person-list/label {:person-list/people (comp/get-query Person)}]
@@ -56,23 +57,18 @@
     (dom/div (dom/h3 label) (dom/ul
                               (map (fn [p] (ui-doodle (comp/computed p {:onDelete delete-doodle}))) doodles)))))
 
-(defsc ClojureSiteList [this {:clj-site/keys [label clj-sites]}]
-  {:initial-state (fn [{:keys [label]}]
-                    {:clj-site/label label
-                     :clj-site/clj-sites [(comp/get-initial-state ClojureSite {:name "Exercism.org"
-                                                                           :url "https://exercism.org/tracks/clojure"})
-                                      (comp/get-initial-state ClojureSite {:name "Brave Clojure"
-                                                                           :url "https://www.braveclojure.com/"})
-                                      (comp/get-initial-state ClojureSite {:name "Clojurians Slack"
-                                                                           :url "https://clojurians.slack.com/"})]})}
-  (dom/div (dom/h3 label) (dom/ul (map ui-clj-site clj-sites))))
+(defsc SiteList [this {:site-list/keys [id label sites] :as props}]
+  {:query [:site-list/id :site-list/label {:site-list/sites (comp/get-query Site)}]
+   :ident (fn [] [:site-list/id (:site-list/id props)])}
+  (let [delete-site (fn [site-id] (comp/transact! this [(api/delete-site {:site-list/id id :site/id site-id})]))]
+    (dom/div (dom/h3 label) (dom/ul (map #(ui-site (comp/computed % {:onDelete delete-site})) sites)))))
 
 (def ui-person-list (comp/factory PersonList))
 (def ui-planet-list (comp/factory PlanetList))
 (def ui-doodle-list (comp/factory DoodleList))
-(def ui-clj-site-list (comp/factory ClojureSiteList))
+(def ui-site-list (comp/factory SiteList))
 
-(defsc Root [this {:keys [friends dancers not-dancers habitable not-habitable ;doodles
+(defsc Root [this {:keys [friends dancers not-dancers habitable not-habitable clojure-resources ;doodles
                           ; clj-sites
                           ]}]
   {:query         [{:friends (comp/get-query PersonList)}
@@ -80,6 +76,7 @@
                    {:not-dancers (comp/get-query PersonList)}
                    {:habitable (comp/get-query PlanetList)}
                    {:not-habitable (comp/get-query PlanetList)}
+                   {:clojure-resources (comp/get-query SiteList)}
                    ;{:doodles (comp/get-query DoodleList)}
                    ]
    :initial-state {}}
@@ -94,6 +91,7 @@
            (when not-dancers (ui-person-list not-dancers))
            (when habitable (ui-planet-list habitable))
            (when not-habitable (ui-planet-list not-habitable))
+           (when clojure-resources (ui-site-list clojure-resources))
            ;(when doodles (ui-doodle-list doodles))
            ;(ui-clj-site-list clj-sites)
            ))

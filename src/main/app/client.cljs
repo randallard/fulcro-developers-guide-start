@@ -13,6 +13,7 @@
   (df/load! app :friends ui/PersonList)
   (df/load! app :habitable ui/PlanetList)
   (df/load! app :not-habitable ui/PlanetList)
+  (df/load! app :clojure-resources ui/SiteList)
   (js/console.log "Loaded"))
 
 (defn ^:export refresh []

@@ -18,7 +18,7 @@
     5 {:planet/id 5 :planet/name "Mercury" :planet/esi-percent 60}
     6 {:planet/id 6 :planet/name "Saturn" :planet/esi-percent 25}})
 
-(def sites-table
+(def site-table
   {1 {:site/id 1 :site/name "Exercism.org" :site/url "https://exercism.org/tracks/clojure"}
    2 {:site/id 2 :site/name "Brave Clojure" :site/url "https://www.braveclojure.com/"}
    3 {:site/id 3 :site/name "Clojurians Slack" :site/url "https://clojurians.slack.com/"}})
@@ -58,6 +58,11 @@
                  ::pc/output [:planet/name :planet/esi-percent]}
                 (get planet-table id))
 
+(pc/defresolver site-resolver [env {:site/keys [id]}]
+                {::pc/input #{:site/id}
+                 ::pc/output [:site/name :site/url]}
+                (get site-table id))
+
 ;; Given a :person-list/id, this can generate a list label and the people
 ;; in that list (but just with their IDs)
 (pc/defresolver list-resolver [env {:person-list/keys [id]}]
@@ -73,6 +78,13 @@
                 (when-let [list (get planet-list-table id)]
                   (assoc list
                     :planet-list/planets (mapv (fn [id] {:planet/id id}) (:planet-list/planets list)))))
+
+(pc/defresolver site-list-resolver [env {:site-list/keys [id]}]
+                {::pc/input #{:site-list/id}
+                 ::pc/output [:site-list/label {:site-list/sites [:site/id]}]}
+                (when-let [list (get site-list-table id)]
+                  (assoc list
+                    :site-list/sites (mapv (fn [id] {:site/id id}) (:site-list/sites list)))))
 
 (pc/defresolver habitable-resolver [env input]
                 {::pc/output [{:habitable [:planet-list/id]}]}
@@ -94,12 +106,17 @@
                 {::pc/output [{:friends [:person-list/id]}]}
                 {:friends {:person-list/id :friends}})
 
+(pc/defresolver clojure-resources-resolver [env input]
+                {::pc/output [{:clojure-resources [:site-list/id]}]}
+                {:clojure-resources {:site-list/id :clojure-resources}})
+
 (def resolvers [person-resolver
                 planet-resolver
                 planet-list-resolver
                 list-resolver
                 habitable-resolver not-habitable-resolver
-                dancers-resolver not-dancers-resolver friends-resolver])
+                dancers-resolver not-dancers-resolver friends-resolver
+                site-resolver site-list-resolver clojure-resources-resolver])
 
 (comment
   (app.parser/api-parser [{[:person/id 1] [:person/name]}])
@@ -114,4 +131,8 @@
   (app.parser/api-parser [{[:planet-list/id :not-habitable] [:planet-list/id :planet-list/label {:planet-list/planets [:planet/name]}]}])
   (app.parser/api-parser [{:habitable [:planet-list/id {:planet-list/planets [:planet/name]}]}])
   (app.parser/api-parser [{:not-habitable [:planet-list/id {:planet-list/planets [:planet/name]}]}])
+  (app.parser/api-parser [{[:site/id 1] [:site/name]}])
+  (app.parser/api-parser [{[:site-list/id :clojure-resources] [:site-list/id]}])
+  (app.parser/api-parser [{[:site-list/id :clojure-resources] [:site-list/id {:site-list/sites [:site/name]}]}])
+  (app.parser/api-parser [{:clojure-resources [:site-list/id {:site-list/sites [:site/name]}]}])
   )
