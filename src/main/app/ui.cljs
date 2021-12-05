@@ -26,7 +26,7 @@
   (dom/li (dom/a {:href url :target "_blank"} name)))
 
 (def ui-person (comp/factory Person {:keyfn :person/id}))
-(def ui-planet (comp/factory Planet {:keyfn :planet/name}))
+(def ui-planet (comp/factory Planet {:keyfn :planet/id}))
 (def ui-doodle (comp/factory Doodle {:keyfn :doodle/name}))
 (def ui-clj-site (comp/factory ClojureSite {:keyfn :clj-site/name}))
 
@@ -72,14 +72,14 @@
 (def ui-doodle-list (comp/factory DoodleList))
 (def ui-clj-site-list (comp/factory ClojureSiteList))
 
-(defsc Root [this {:keys [friends dancers not-dancers ;habitable not-habitable doodles
+(defsc Root [this {:keys [friends dancers not-dancers habitable not-habitable ;doodles
                           ; clj-sites
                           ]}]
   {:query         [{:friends (comp/get-query PersonList)}
                    {:dancers (comp/get-query PersonList)}
                    {:not-dancers (comp/get-query PersonList)}
-                   ;{:habitable (comp/get-query PlanetList)}
-                   ;{:not-habitable (comp/get-query PlanetList)}
+                   {:habitable (comp/get-query PlanetList)}
+                   {:not-habitable (comp/get-query PlanetList)}
                    ;{:doodles (comp/get-query DoodleList)}
                    ]
    :initial-state {}}
@@ -92,8 +92,8 @@
            (when dancers
              (ui-person-list dancers))
            (when not-dancers (ui-person-list not-dancers))
-           ;(when habitable (ui-planet-list habitable))
-           ;(when not-habitable (ui-planet-list not-habitable))
+           (when habitable (ui-planet-list habitable))
+           (when not-habitable (ui-planet-list not-habitable))
            ;(when doodles (ui-doodle-list doodles))
            ;(ui-clj-site-list clj-sites)
            ))

@@ -9,7 +9,10 @@
 (defn ^:export init []
   (app/mount! app ui/Root "app")
   (df/load! app :dancers ui/PersonList)
+  (df/load! app :not-dancers ui/PersonList)
   (df/load! app :friends ui/PersonList)
+  (df/load! app :habitable ui/PlanetList)
+  (df/load! app :not-habitable ui/PlanetList)
   (js/console.log "Loaded"))
 
 (defn ^:export refresh []
