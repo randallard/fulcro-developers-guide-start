@@ -7,7 +7,8 @@
   [{list-id :person-list/id
     person-id :person/id}]
   (action [{:keys [state]}]
-          (swap! state merge/remove-ident* [:person/id person-id] [:person-list/id list-id :person-list/people])))
+          (swap! state merge/remove-ident* [:person/id person-id] [:person-list/id list-id :person-list/people]))
+  (remote [env] true))
 
 (defmutation delete-planet
   "Mutation: Delete the planet with `id` from the list"

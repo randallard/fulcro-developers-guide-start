@@ -4,11 +4,12 @@
     [com.wsscode.pathom.connect :as pc]))
 
 (def people-table
-  { 1 {:person/id 1 :person/name "Joe" :person/age 22}
-    2 {:person/id 2 :person/name "Katch" :person/age 93}
-    3 {:person/id 3 :person/name "Brandon" :person/age 40}
-    4 {:person/id 4 :person/name "Stank" :person/age 44}
-    5 {:person/id 5 :person/name "Phil" :person/age 70}})
+  (atom
+    {1 {:person/id 1 :person/name "Joe" :person/age 22}
+     2 {:person/id 2 :person/name "Katch" :person/age 93}
+     3 {:person/id 3 :person/name "Brandon" :person/age 40}
+     4 {:person/id 4 :person/name "Stank" :person/age 44}
+     5 {:person/id 5 :person/name "Phil" :person/age 70}}))
 
 (def planet-table
   { 1 {:planet/id 1 :planet/name "Earth" :planet/esi-percent 100}
@@ -27,15 +28,16 @@
    6 {:site/id 6 :site/name "Josephine Baker's 111th Birthday" :site/url ""}})
 
 (def list-table
-  {:dancers     {:person-list/id     :dancers
-                 :person-list/label  "Dancers"
-                 :person-list/people [1 2 3]}
-   :not-dancers {:person-list/id     :not-dancers
-                 :person-list/label  "Not Dancers"
-                 :person-list/people [5 4]}
-   :friends     {:person-list/id     :friends
-                 :person-list/label  "Friends"
-                 :person-list/people [3 4 5]}})
+  (atom
+    {:dancers     {:person-list/id     :dancers
+                   :person-list/label  "Dancers"
+                   :person-list/people [1 2 3]}
+     :not-dancers {:person-list/id     :not-dancers
+                   :person-list/label  "Not Dancers"
+                   :person-list/people [5 4]}
+     :friends     {:person-list/id     :friends
+                   :person-list/label  "Friends"
+                   :person-list/people [3 4 5]}}))
 
 (def planet-list-table
   {:habitable     {:planet-list/id      :habitable
@@ -57,7 +59,7 @@
 (pc/defresolver person-resolver [env {:person/keys [id]}]
                 {::pc/input  #{:person/id}
                  ::pc/output [:person/name :person/age]}
-                (get people-table id))
+                (get @people-table id))
 
 (pc/defresolver planet-resolver [env {:planet/keys [id]}]
                 {::pc/input #{:planet/id}
@@ -74,7 +76,7 @@
 (pc/defresolver list-resolver [env {:person-list/keys [id]}]
                 {::pc/input  #{:person-list/id}
                  ::pc/output [:person-list/label {:person-list/people [:person/id]}]}
-                (when-let [list (get list-table id)]
+                (when-let [list (get @list-table id)]
                   (assoc list
                     :person-list/people (mapv (fn [id] {:person/id id}) (:person-list/people list)))))
 
