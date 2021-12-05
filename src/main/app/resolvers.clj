@@ -21,38 +21,37 @@
      6 {:planet/id 6 :planet/name "Saturn" :planet/esi-percent 25}}))
 
 (def site-table
-  {1 {:site/id 1 :site/name "Exercism.org" :site/url "https://exercism.org/tracks/clojure"}
-   2 {:site/id 2 :site/name "Brave Clojure" :site/url "https://www.braveclojure.com/"}
-   3 {:site/id 3 :site/name "Clojurians Slack" :site/url "https://clojurians.slack.com/"}
-   4 {:site/id 4 :site/name "Fishinger" :site/url ""}
-   5 {:site/id 5 :site/name "Great Union Day 2021" :site/url ""}
-   6 {:site/id 6 :site/name "Josephine Baker's 111th Birthday" :site/url ""}})
+  (atom
+    {1 {:site/id 1 :site/name "Exercism.org" :site/url "https://exercism.org/tracks/clojure"}
+     2 {:site/id 2 :site/name "Brave Clojure" :site/url "https://www.braveclojure.com/"}
+     3 {:site/id 3 :site/name "Clojurians Slack" :site/url "https://clojurians.slack.com/"}
+     4 {:site/id 4 :site/name "Fishinger" :site/url ""}
+     5 {:site/id 5 :site/name "Great Union Day 2021" :site/url ""}
+     6 {:site/id 6 :site/name "Josephine Baker's 111th Birthday" :site/url ""}}))
 
 (def list-table
   (atom
-    {:dancers     {:person-list/id     :dancers
-                   :person-list/label  "Dancers"
-                   :person-list/people [1 2 3]}
-     :not-dancers {:person-list/id     :not-dancers
-                   :person-list/label  "Not Dancers"
-                   :person-list/people [5 4]}
-     :friends     {:person-list/id     :friends
-                   :person-list/label  "Friends"
-                   :person-list/people [3 4 5]}
-     :habitable   {:planet-list/id    :habitable
-                   :planet-list/label   "Habitable?"
-                   :planet-list/planets [1 2 3 4]}
-     :not-habitable {:planet-list/id      :not-habitable
-                   :planet-list/label   "Not Habitable"
-                   :planet-list/planets [5 6]}}))
-
-(def site-list-table
-  {:clojure-resources {:site-list/id    :clojure-resources
-                       :site-list/label "Clojure Resources"
-                       :site-list/sites [1 2 3]}
-   :google-doodles    {:site-list/id    :google-doodles
-                       :site-list/label "Google Doodles"
-                       :site-list/sites [4 5 6]}})
+    {:dancers           {:person-list/id     :dancers
+                         :person-list/label  "Dancers"
+                         :person-list/people [1 2 3]}
+     :not-dancers       {:person-list/id     :not-dancers
+                         :person-list/label  "Not Dancers"
+                         :person-list/people [5 4]}
+     :friends           {:person-list/id     :friends
+                         :person-list/label  "Friends"
+                         :person-list/people [3 4 5]}
+     :habitable         {:planet-list/id      :habitable
+                         :planet-list/label   "Habitable?"
+                         :planet-list/planets [1 2 3 4]}
+     :not-habitable     {:planet-list/id      :not-habitable
+                         :planet-list/label   "Not Habitable"
+                         :planet-list/planets [5 6]}
+     :clojure-resources {:site-list/id    :clojure-resources
+                         :site-list/label "Clojure Resources"
+                         :site-list/sites [1 2 3]}
+     :google-doodles    {:site-list/id    :google-doodles
+                         :site-list/label "Google Doodles"
+                         :site-list/sites [4 5 6]}}))
 
 ;; Given :person/id, this can generate the details of a person
 (pc/defresolver person-resolver [env {:person/keys [id]}]
@@ -68,7 +67,7 @@
 (pc/defresolver site-resolver [env {:site/keys [id]}]
                 {::pc/input #{:site/id}
                  ::pc/output [:site/name :site/url]}
-                (get site-table id))
+                (get @site-table id))
 
 ;; Given a :person-list/id, this can generate a list label and the people
 ;; in that list (but just with their IDs)
@@ -89,7 +88,7 @@
 (pc/defresolver site-list-resolver [env {:site-list/keys [id]}]
                 {::pc/input #{:site-list/id}
                  ::pc/output [:site-list/label {:site-list/sites [:site/id]}]}
-                (when-let [list (get site-list-table id)]
+                (when-let [list (get @list-table id)]
                   (assoc list
                     :site-list/sites (mapv (fn [id] {:site/id id}) (:site-list/sites list)))))
 

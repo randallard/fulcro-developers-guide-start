@@ -19,7 +19,7 @@
 (defsc Site [this {:site/keys [id name url] :as props} {:keys [onDelete]}]
   {:query [:site/id :site/name :site/url]
    :ident (fn [] [:site/id (:site/id props)])}
-  (dom/li (dom/a {:href url :target "_blank"} name) " " (dom/button {:onClick #(onDelete name)} " Delete ")))
+  (dom/li (dom/a {:href url :target "_blank"} name) " " (dom/button {:onClick #(onDelete id)} " Delete ")))
 
 (def ui-person (comp/factory Person {:keyfn :person/id}))
 (def ui-planet (comp/factory Planet {:keyfn :planet/id}))
@@ -45,7 +45,6 @@
 
 (def ui-person-list (comp/factory PersonList))
 (def ui-planet-list (comp/factory PlanetList))
-(def ui-doodle-list (comp/factory SiteList))
 (def ui-site-list (comp/factory SiteList))
 
 (defsc Root [this {:keys [friends dancers not-dancers habitable not-habitable clojure-resources google-doodles
@@ -67,4 +66,4 @@
            (when habitable (ui-planet-list habitable))
            (when not-habitable (ui-planet-list not-habitable))
            (when clojure-resources (ui-site-list clojure-resources))
-           (when google-doodles (ui-doodle-list google-doodles))))
+           (when google-doodles (ui-site-list google-doodles))))

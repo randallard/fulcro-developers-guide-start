@@ -24,4 +24,9 @@
                 (log/info "Deleting planet" planet-id "from list " list-id)
                 (swap! list-table update list-id update :planet-list/planets (fn [old-list] (filterv #(not= planet-id %) old-list))))
 
-(def mutations [delete-person delete-planet])
+(pc/defmutation delete-site [env {list-id :site-list/id
+                                  site-id :site/id}]
+                {::pc/sym `delete-site}
+                (swap! list-table update list-id update :site-list/sites (fn [old-list] (filterv #(not= site-id %) old-list))))
+
+(def mutations [delete-person delete-planet delete-site])

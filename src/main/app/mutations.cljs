@@ -23,14 +23,5 @@
   [{list-id :site-list/id
     site-id :site/id}]
   (action [{:keys [state]}]
-          (swap! state merge/remove-ident* [:site/id site-id] [:site-list/id list-id :site-list/sites])))
-
-(defmutation delete-doodle
-  "Mutation: Delete the doodle with `name` from the list"
-  [{:keys [name]}]
-  (action [{:keys [state]}]
-          (let [path [:doodles :doodle-list/doodles]
-                old-list (get-in @state path)
-                new-list (vec (filter #(not= (:doodle/name %) name) old-list))]
-            (swap! state assoc-in path new-list))))
-
+          (swap! state merge/remove-ident* [:site/id site-id] [:site-list/id list-id :site-list/sites]))
+  (remote [env] true))
