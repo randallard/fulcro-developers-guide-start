@@ -21,7 +21,10 @@
 (def site-table
   {1 {:site/id 1 :site/name "Exercism.org" :site/url "https://exercism.org/tracks/clojure"}
    2 {:site/id 2 :site/name "Brave Clojure" :site/url "https://www.braveclojure.com/"}
-   3 {:site/id 3 :site/name "Clojurians Slack" :site/url "https://clojurians.slack.com/"}})
+   3 {:site/id 3 :site/name "Clojurians Slack" :site/url "https://clojurians.slack.com/"}
+   4 {:site/id 4 :site/name "Fishinger" :site/url ""}
+   5 {:site/id 5 :site/name "Great Union Day 2021" :site/url ""}
+   6 {:site/id 6 :site/name "Josephine Baker's 111th Birthday" :site/url ""}})
 
 (def list-table
   {:dancers     {:person-list/id     :dancers
@@ -45,7 +48,10 @@
 (def site-list-table
   {:clojure-resources {:site-list/id    :clojure-resources
                        :site-list/label "Clojure Resources"
-                       :site-list/sites [1 2 3]}})
+                       :site-list/sites [1 2 3]}
+   :google-doodles    {:site-list/id    :google-doodles
+                       :site-list/label "Google Doodles"
+                       :site-list/sites [4 5 6]}})
 
 ;; Given :person/id, this can generate the details of a person
 (pc/defresolver person-resolver [env {:person/keys [id]}]
@@ -110,13 +116,17 @@
                 {::pc/output [{:clojure-resources [:site-list/id]}]}
                 {:clojure-resources {:site-list/id :clojure-resources}})
 
+(pc/defresolver google-doodle-resolver [env input]
+                {::pc/output [{:google-doodles [:site-list/id]}]}
+                {:google-doodles {:site-list/id :google-doodles}})
+
 (def resolvers [person-resolver
                 planet-resolver
                 planet-list-resolver
                 list-resolver
                 habitable-resolver not-habitable-resolver
                 dancers-resolver not-dancers-resolver friends-resolver
-                site-resolver site-list-resolver clojure-resources-resolver])
+                site-resolver site-list-resolver clojure-resources-resolver google-doodle-resolver])
 
 (comment
   (app.parser/api-parser [{[:person/id 1] [:person/name]}])
@@ -135,4 +145,5 @@
   (app.parser/api-parser [{[:site-list/id :clojure-resources] [:site-list/id]}])
   (app.parser/api-parser [{[:site-list/id :clojure-resources] [:site-list/id {:site-list/sites [:site/name]}]}])
   (app.parser/api-parser [{:clojure-resources [:site-list/id {:site-list/sites [:site/name]}]}])
+  (app.parser/api-parser [{:google-doodles [:site-list/id {:site-list/sites [:site/name]}]}])
   )

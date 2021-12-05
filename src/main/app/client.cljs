@@ -14,6 +14,7 @@
   (df/load! app :habitable ui/PlanetList)
   (df/load! app :not-habitable ui/PlanetList)
   (df/load! app :clojure-resources ui/SiteList)
+  (df/load! app :google-doodles ui/SiteList)
   (js/console.log "Loaded"))
 
 (defn ^:export refresh []
