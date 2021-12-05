@@ -12,12 +12,13 @@
      5 {:person/id 5 :person/name "Phil" :person/age 70}}))
 
 (def planet-table
-  { 1 {:planet/id 1 :planet/name "Earth" :planet/esi-percent 100}
-    2 {:planet/id 2 :planet/name "Kepler-62 e" :planet/esi-percent 82}
-    3 {:planet/id 3 :planet/name "Proxima Centauri b" :planet/esi-percent 87}
-    4 {:planet/id 4 :planet/name "Ross 128 b" :planet/esi-percent 86}
-    5 {:planet/id 5 :planet/name "Mercury" :planet/esi-percent 60}
-    6 {:planet/id 6 :planet/name "Saturn" :planet/esi-percent 25}})
+  (atom
+    {1 {:planet/id 1 :planet/name "Earth" :planet/esi-percent 100}
+     2 {:planet/id 2 :planet/name "Kepler-62 e" :planet/esi-percent 82}
+     3 {:planet/id 3 :planet/name "Proxima Centauri b" :planet/esi-percent 87}
+     4 {:planet/id 4 :planet/name "Ross 128 b" :planet/esi-percent 86}
+     5 {:planet/id 5 :planet/name "Mercury" :planet/esi-percent 60}
+     6 {:planet/id 6 :planet/name "Saturn" :planet/esi-percent 25}}))
 
 (def site-table
   {1 {:site/id 1 :site/name "Exercism.org" :site/url "https://exercism.org/tracks/clojure"}
@@ -40,12 +41,13 @@
                    :person-list/people [3 4 5]}}))
 
 (def planet-list-table
-  {:habitable     {:planet-list/id      :habitable
-                   :planet-list/label   "Habitable?"
-                   :planet-list/planets [1 2 3 4]}
-   :not-habitable {:planet-list/id      :not-habitable
-                   :planet-list/label   "Not Habitable"
-                   :planet-list/planets [5 6]}})
+  (atom
+    {:habitable     {:planet-list/id      :habitable
+                     :planet-list/label   "Habitable?"
+                     :planet-list/planets [1 2 3 4]}
+     :not-habitable {:planet-list/id      :not-habitable
+                     :planet-list/label   "Not Habitable"
+                     :planet-list/planets [5 6]}}))
 
 (def site-list-table
   {:clojure-resources {:site-list/id    :clojure-resources
@@ -64,7 +66,7 @@
 (pc/defresolver planet-resolver [env {:planet/keys [id]}]
                 {::pc/input #{:planet/id}
                  ::pc/output [:planet/name :planet/esi-percent]}
-                (get planet-table id))
+                (get @planet-table id))
 
 (pc/defresolver site-resolver [env {:site/keys [id]}]
                 {::pc/input #{:site/id}
@@ -83,7 +85,7 @@
 (pc/defresolver planet-list-resolver [env {:planet-list/keys [id]}]
                 {::pc/input #{:planet-list/id}
                  ::pc/output [:planet-list/label {:planet-list/planets [:planet/id]}]}
-                (when-let [list (get planet-list-table id)]
+                (when-let [list (get @planet-list-table id)]
                   (assoc list
                     :planet-list/planets (mapv (fn [id] {:planet/id id}) (:planet-list/planets list)))))
 

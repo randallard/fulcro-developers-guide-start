@@ -15,7 +15,8 @@
   [{list-id :planet-list/id
     planet-id :planet/id}]
   (action [{:keys [state]}]
-          (swap! state merge/remove-ident* [:planet/id planet-id] [:planet-list/id list-id :planet-list/planets])))
+          (swap! state merge/remove-ident* [:planet/id planet-id] [:planet-list/id list-id :planet-list/planets]))
+  (remote [env] true))
 
 (defmutation delete-site
   "Mutation: Delete the site with `id` from the list"
