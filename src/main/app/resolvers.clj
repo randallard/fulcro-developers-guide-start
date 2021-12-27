@@ -9,7 +9,8 @@
      2 {:person/id 2 :person/name "Katch" :person/age 93}
      3 {:person/id 3 :person/name "Brandon" :person/age 40}
      4 {:person/id 4 :person/name "Stank" :person/age 44}
-     5 {:person/id 5 :person/name "Phil" :person/age 70}}))
+     5 {:person/id 5 :person/name "Phil" :person/age 70}
+     6 {:person/id 6 :person/name "Ted" :person/age 15}}))
 
 (def planet-table
   (atom
@@ -18,7 +19,8 @@
      3 {:planet/id 3 :planet/name "Proxima Centauri b" :planet/esi-percent 87}
      4 {:planet/id 4 :planet/name "Ross 128 b" :planet/esi-percent 86}
      5 {:planet/id 5 :planet/name "Mercury" :planet/esi-percent 60}
-     6 {:planet/id 6 :planet/name "Saturn" :planet/esi-percent 25}}))
+     6 {:planet/id 6 :planet/name "Saturn" :planet/esi-percent 25}
+     7 {:planet/id 7 :planet/name "Kepler-442b" :planet/esi-percent 84}}))
 
 (def site-table
   (atom
@@ -33,7 +35,7 @@
   (atom
     {:dancers           {:person-list/id     :dancers
                          :person-list/label  "Dancers"
-                         :person-list/people [1 2 3]}
+                         :person-list/people [1 2 3 6]}
      :not-dancers       {:person-list/id     :not-dancers
                          :person-list/label  "Not Dancers"
                          :person-list/people [5 4]}
@@ -42,7 +44,7 @@
                          :person-list/people [3 4 5]}
      :habitable         {:planet-list/id      :habitable
                          :planet-list/label   "Habitable?"
-                         :planet-list/planets [1 2 3 4]}
+                         :planet-list/planets [1 2 3 4 7]}
      :not-habitable     {:planet-list/id      :not-habitable
                          :planet-list/label   "Not Habitable"
                          :planet-list/planets [5 6]}
