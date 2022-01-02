@@ -83,23 +83,35 @@
                 2 {:vehicle/name "Princess General" :vehicle/model "Tundra" :vehicle/year 2014}
                 3 {:vehicle/name "wee-wee" :vehicle/model "Scion" :vehicle/year 2004}}})
 
+(def current-state (com.fulcrologic.fulcro.application/current-state app.application/app))
+
 (comment
   ;; bookmark 5.1.1
   ;; move context to particular normalized entity in the db
   (let [starting-entity {}]
     (fdn/db->tree [[:person/id 1]] starting-entity sample-db))
+  (fdn/db->tree [[:person-list/id :dancers]] {} current-state)
+  (fdn/db->tree [[:person/id 1]] {} current-state)
+  (fdn/db->tree [[:planet/id 1]] {} current-state)
 
   (let [starting-entity {}]
     (fdn/db->tree [[:vehicle/id 1]] starting-entity another-sample))
 
   (let [starting-entity sample-db]
     (fdn/db->tree [:some-number [:person/id 1]] starting-entity sample-db))
+  (fdn/db->tree [[:planet/id 1] [:site/id 1]] {} current-state)
 
   (let [starting-entity another-sample]
     (fdn/db->tree [:critical-info [:vehicle/id 1]] starting-entity another-sample))
 
   (fdn/db->tree [{[:person/id 1] [:person/name {:person/spouse [:person/name]}]}] {} sample-db)
   (fdn/db->tree [{[:vehicle/id 1] [:vehicle/name {:vehicle/favorite-sibling [:vehicle/name]}]}] {} another-sample)
+  (fdn/db->tree [{[:person-list/id :dancers] [:person-list/people]}] {} current-state)
+  (fdn/db->tree [{[:person-list/id :dancers] [{:person-list/people [:person/name]}]}] {} current-state)
+  (fdn/db->tree [{[:person-list/id :not-dancers] [{:person-list/people [:person/name]}]}] {} current-state)
+  (fdn/db->tree [{[:person-list/id :not-dancers] [{:person-list/people [:person/name :person/age]}]}] {} current-state)
+  (fdn/db->tree [{[:planet-list/id :not-habitable] [{:planet-list/planets [:planet/name]}]}] {} current-state)
+  (fdn/db->tree [{[:site-list/id :clojure-resources] [{:site-list/sites [:site/name :site/url]}]}] {} current-state)
 
   (let [starting-entity (get-in sample-db [:person/id 1])]
     (fdn/db->tree [:person/name] starting-entity sample-db))
@@ -107,6 +119,8 @@
   (let [starting-entity (get-in another-sample [:vehicle/id 1])]
     (fdn/db->tree [:vehicle/name] starting-entity another-sample))
 
+  (let [starting-entity (get-in current-state [:planet-list/id :habitable])]
+    (fdn/db->tree [{:planet-list/planets [:planet/name]}] starting-entity current-state))
 
   ;; bookmark 5.1
   ;; another-sample samples
@@ -117,13 +131,22 @@
   (let [starting-node another-sample]
     (fdn/db->tree [:cars] starting-node another-sample))
 
+  ;; bookmark start client db experiments
+  ;; get top level prop (see fulcro inspect for prop to try)
+  (fdn/db->tree [:dancers] (com.fulcrologic.fulcro.application/current-state app.application/app) {})
+
   ;; what if you ask for :vehicle/id top level prop?
   (let [starting-node another-sample]
     (fdn/db->tree [:vehicle/id] starting-node another-sample))
 
+  (fdn/db->tree [:person/id] (com.fulcrologic.fulcro.application/current-state app.application/app) {})
+  (fdn/db->tree [:person-list/id] current-state {})
+
   ;; sample db samples
   (let [starting-node sample-db]
     (fdn/db->tree [{:people [:person/name]}] starting-node sample-db))
+
+  (fdn/db->tree [{:person-list/id [:dancers]}] current-state app.ui/Root)
 
   ;; The query just asks for a top-level prop.
   (let [starting-node sample-db]
