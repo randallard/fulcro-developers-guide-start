@@ -69,6 +69,69 @@
            (when clojure-resources (ui-site-list clojure-resources))
            (when google-doodles (ui-site-list google-doodles))))
 
-(comment
+(def sample-db
+  {:people    [[:person/id 1] [:person/id 2]]
+   :person/id {1 {:person/name "Bob" :person/spouse [:person/id 2]}
+               2 {:person/name "Judy"}}})
+(def another-sample
+  {:cars [[:vehicle/id 1] [:vehicle/id 3]]
+   :trucks [[:vehicle/id 2]]
+   :vehicle/id {1 {:vehicle/name "Shego" :vehicle/model "RAV4" :vehicle/year 2019
+                   :vehicle/favorite-sibling [:vehicle/id 2]}
+                2 {:vehicle/name "Princess General" :vehicle/model "Tundra" :vehicle/year 2014}
+                3 {:vehicle/name "wee-wee" :vehicle/model "Scion" :vehicle/year 2004}}})
 
+(comment
+  ;; bookmark 5.1.1
+  ;; move context to particular normalized entity in the db
+  (let [starting-entity {}]
+    (fdn/db->tree [[:person/id 1]] starting-entity sample-db))
+
+  (let [starting-entity {}]
+    (fdn/db->tree [[:vehicle/id 1]] starting-entity another-sample))
+
+
+
+  ;; bookmark 5.1
+  ;; another-sample samples
+  (let [starting-node another-sample]
+    (fdn/db->tree [{:cars [:vehicle/name :vehicle/year]}] starting-node another-sample))
+
+  ;; get top level prop
+  (let [starting-node another-sample]
+    (fdn/db->tree [:cars] starting-node another-sample))
+
+  ;; what if you ask for :vehicle/id top level prop?
+  (let [starting-node another-sample]
+    (fdn/db->tree [:vehicle/id] starting-node another-sample))
+
+  ;; sample db samples
+  (let [starting-node sample-db]
+    (fdn/db->tree [{:people [:person/name]}] starting-node sample-db))
+
+  ;; The query just asks for a top-level prop.
+  (let [starting-node sample-db]
+    (fdn/db->tree [:people] starting-node sample-db))
+
+  ;; The query just asks for a table
+  (let [starting-node sample-db]
+    (fdn/db->tree [:person/id] starting-node sample-db))
+
+  ;; not following joins
+  (let [starting-entity {:person/name "Joe" :person/age 42}
+        empty-db {}]
+    (fdn/db->tree [:person/name] starting-entity empty-db))
+
+  (let [starting-entity {:vehicle/name "Shego" :vehicle/model "RAV4"}
+        empty-db {}]
+    (fdn/db->tree [:vehicle/name] starting-entity empty-db))
+
+  ;; pruning a tree with no normalization
+  (let [starting-entity {:person/name "Joe" :person/age 42 :person/spouse {:person/name "Judy" :person/age 45}}
+        empty-db {}]
+    (fdn/db->tree [:person/name {:person/spouse [:person/age]}] starting-entity empty-db))
+
+  (let [starting-entity {:vehicle/name "Shego" :vehicle/model "RAV4" :vehicle/sibling {:vehicle/name "wee-wee" :vehicle/model "Scion"}}
+        empty-db {}]
+    (fdn/db->tree [:vehicle/name {:vehicle/sibling [:vehicle/model]}] starting-entity empty-db))
   )
