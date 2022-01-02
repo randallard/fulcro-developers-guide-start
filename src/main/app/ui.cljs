@@ -71,11 +71,13 @@
 
 (def sample-db
   {:people    [[:person/id 1] [:person/id 2]]
+   :some-number 99
    :person/id {1 {:person/name "Bob" :person/spouse [:person/id 2]}
                2 {:person/name "Judy"}}})
 (def another-sample
   {:cars [[:vehicle/id 1] [:vehicle/id 3]]
    :trucks [[:vehicle/id 2]]
+   :critical-info "superfluous"
    :vehicle/id {1 {:vehicle/name "Shego" :vehicle/model "RAV4" :vehicle/year 2019
                    :vehicle/favorite-sibling [:vehicle/id 2]}
                 2 {:vehicle/name "Princess General" :vehicle/model "Tundra" :vehicle/year 2014}
@@ -90,6 +92,20 @@
   (let [starting-entity {}]
     (fdn/db->tree [[:vehicle/id 1]] starting-entity another-sample))
 
+  (let [starting-entity sample-db]
+    (fdn/db->tree [:some-number [:person/id 1]] starting-entity sample-db))
+
+  (let [starting-entity another-sample]
+    (fdn/db->tree [:critical-info [:vehicle/id 1]] starting-entity another-sample))
+
+  (fdn/db->tree [{[:person/id 1] [:person/name {:person/spouse [:person/name]}]}] {} sample-db)
+  (fdn/db->tree [{[:vehicle/id 1] [:vehicle/name {:vehicle/favorite-sibling [:vehicle/name]}]}] {} another-sample)
+
+  (let [starting-entity (get-in sample-db [:person/id 1])]
+    (fdn/db->tree [:person/name] starting-entity sample-db))
+
+  (let [starting-entity (get-in another-sample [:vehicle/id 1])]
+    (fdn/db->tree [:vehicle/name] starting-entity another-sample))
 
 
   ;; bookmark 5.1
