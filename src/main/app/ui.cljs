@@ -67,3 +67,32 @@
            (when not-habitable (ui-planet-list not-habitable))
            (when clojure-resources (ui-site-list clojure-resources))
            (when google-doodles (ui-site-list google-doodles))))
+
+(comment
+  (let [sample-db {:people [[:person/id 1] [:person/id 2]]
+                   :person/id {1 {:person/name "Bob"}
+                               2 {:person/name "Judy"}}}
+        starting-node sample-db]
+    (com.fulcrologic.fulcro.algorithms.denormalize/db->tree [{:people [:person/name]}] starting-node sample-db)
+    (com.fulcrologic.fulcro.algorithms.denormalize/db->tree [:person/id] starting-node sample-db))
+
+  (let
+    [state (com.fulcrologic.fulcro.application/current-state app.application/app)
+     query (com.fulcrologic.fulcro.components/get-query app.ui/Root)]
+    (com.fulcrologic.fulcro.algorithms.denormalize/db->tree [:person/id] state state)
+    (com.fulcrologic.fulcro.algorithms.denormalize/db->tree [:planet/id] state state)
+    (com.fulcrologic.fulcro.algorithms.denormalize/db->tree [:planet-list/id] state state)
+    (com.fulcrologic.fulcro.algorithms.denormalize/db->tree [[:planet/id 1]] state state)
+    (com.fulcrologic.fulcro.algorithms.denormalize/db->tree [{[:planet-list/id :habitable] [:planet-list/label {:planet-list/planets [:planet/id]}]}] state state)
+    (com.fulcrologic.fulcro.algorithms.denormalize/db->tree [{[:site-list/id :google-doodles] [:site-list/label {:site-list/sites [:site/name :site/url]}]}] state state)
+    (com.fulcrologic.fulcro.algorithms.denormalize/db->tree
+      [:site-list/label]
+      (get-in state [:site-list/id :clojure-resources])
+      state)
+    (com.fulcrologic.fulcro.algorithms.denormalize/db->tree
+      [{:site-list/sites [:site/name :site/url]}]
+      (get-in state [:site-list/id :clojure-resources])
+      state)
+    ;(get-in (get-in state [:site-list/id :clojure-resources]) [:site-list/label])
+    )
+  )

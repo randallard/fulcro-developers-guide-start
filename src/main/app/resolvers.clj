@@ -27,9 +27,9 @@
     {1 {:site/id 1 :site/name "Exercism.org" :site/url "https://exercism.org/tracks/clojure"}
      2 {:site/id 2 :site/name "Brave Clojure" :site/url "https://www.braveclojure.com/"}
      3 {:site/id 3 :site/name "Clojurians Slack" :site/url "https://clojurians.slack.com/"}
-     4 {:site/id 4 :site/name "Fishinger" :site/url ""}
-     5 {:site/id 5 :site/name "Great Union Day 2021" :site/url ""}
-     6 {:site/id 6 :site/name "Josephine Baker's 111th Birthday" :site/url ""}}))
+     4 {:site/id 4 :site/name "Fishinger" :site/url "https://www.google.com/logos/doodles/2017/fischinger/fischinger17.9.html?hl=en"}
+     5 {:site/id 5 :site/name "Great Union Day 2021" :site/url "https://www.google.com/doodles/great-union-day-2021"}
+     6 {:site/id 6 :site/name "Josephine Baker's 111th Birthday" :site/url "https://www.google.com/doodles/josephine-bakers-111th-birthday"}}))
 
 (def list-table
   (atom
