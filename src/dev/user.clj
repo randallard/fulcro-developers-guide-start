@@ -13,7 +13,6 @@
 
 (defn restart
   "Stop the server, reload all source code, then restart the server.
-
   See documentation of tools.namespace.repl for more information."
   []
   (server/stop)
