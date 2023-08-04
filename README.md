@@ -1,9 +1,10 @@
 # fulcro-developers-guide-start
-use this to skip to the good part of the fulcro developers guide 
+use this to skip to the good part of the fulcro developers guide
+do this though: https://book.fulcrologic.com/#_install_supporting_tools
 
 set deps.edn to open with IntelliJ
 double click deps.edn
-install deps as described here: https://cursive-ide.com/userguide/deps.html (must use v 0.12.1090 - tried through 0.12.1109 and they dont work)
+install deps as described here: https://cursive-ide.com/userguide/deps.html (prior to idea 2022.3 must use v 0.12.1090 - tried through 0.12.1109 and they dont work)
 
 run shadow-cljs install with the following command
 npm install shadow-cljs react react-dom --save
@@ -32,7 +33,7 @@ connection details:
   port: 9000
   click 'apply' then 'ok'
 
-  Choose 'cljs repl'
+  Choose 'cljs repl' - if there is red then you probably need to run clj in powershell to download dependencies 
   click the green play button next to it
   click in the repl where you see "Connecting to remote nREPL..."
   enter the following (it will show up below)

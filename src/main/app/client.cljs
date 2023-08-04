@@ -1,6 +1,7 @@
 (ns app.client
   (:require
     [app.deck :as deck]
+    [app.player :as player]
     [com.fulcrologic.fulcro.application :as app]
     [com.fulcrologic.fulcro.components :as comp :refer [defsc]]
     [com.fulcrologic.fulcro.dom :as dom]
@@ -125,7 +126,7 @@
                            :contact/phone-number "5092209996"})
 
 
-  (deck/get "poker")
+  (deck/get-deck "poker")
   (reset! (::app/state-atom APP) {})
   (app/current-state APP)
   (merge/merge-component! APP deck/Deck {:deck/id 1
@@ -134,5 +135,6 @@
                                                     :card/suit "Hearts"
                                                     :card/value 1
                                                     :card/name "Ace"} ]})
+  (merge/merge-component! APP deck/Deck (conj (deck/get-deck "poker") [:deck/id 1]))
 
   )
