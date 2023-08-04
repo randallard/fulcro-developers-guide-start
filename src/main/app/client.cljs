@@ -1,5 +1,6 @@
 (ns app.client
   (:require
+    [app.table :as table]
     [app.deck :as deck]
     [app.player :as player]
     [com.fulcrologic.fulcro.application :as app]
@@ -28,7 +29,7 @@
    :ident :book/id})
 (def ui-book (comp/factory Book {:keyfn :book/id}))
 
-(defsc Hand [this {:hand/keys [id cards] :as props}]
+#_(defsc Hand [this {:hand/keys [id cards] :as props}]
   {:query [:hand/id {:hand/cards (comp/get-query deck/Card)}]
    :ident :hand/id})
 
@@ -51,6 +52,21 @@
       (app/mount! APP Sample "app"))
 
 (comment
+
+  ; set table
+  (reset! (::app/state-atom APP) {})
+  (app/current-state APP)
+  (merge/merge-component! APP table/Table {:table/id 1
+                          :table/game "war"
+                          :table/deck (conj (deck/get-deck "poker") [:deck/id 1])
+                          :table/players (table/get-players 4)})
+
+  ; get deck for table
+
+  (merge/merge-component! APP deck/Deck (conj (deck/get-deck "poker") [:deck/id 1]))
+
+  ; other notes
+
   (keys APP)
   (-> APP (::app/state-atom) deref)
   (reset! (::app/state-atom APP) {:a 1})
@@ -136,5 +152,7 @@
                                                     :card/value 1
                                                     :card/name "Ace"} ]})
   (merge/merge-component! APP deck/Deck (conj (deck/get-deck "poker") [:deck/id 1]))
+
+
 
   )
