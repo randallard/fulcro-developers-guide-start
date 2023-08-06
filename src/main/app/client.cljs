@@ -16,20 +16,48 @@
 
 (defsc ThingCategory [this {:thing-category/keys [id name things] :as props}]
   {:query [:thing-category/id :thing-category/name {:thing-category/things (comp/get-query Thing)}]
-   :ident :thing-category/id})
+   :ident :thing-category/id}
+  (dom/div
+    (dom/h2 name)))
 
+(def ui-thing-category (comp/factory ThingCategory {:keyfn :thing-category/id}))
 
-(defsc MyThings [this {:root/keys [thing-category]}]
-       {:query [{:root/thing-category (comp/get-query ThingCategory)}]})
+(defsc MyThings [this {:root/keys [my-things]}]
+       {:query [{:root/my-things (comp/get-query ThingCategory)}]}
+  (dom/div
+    (dom/h1 "My Things")
+    (dom/p "I have " 1 " things")
+    (ui-thing-category my-things)))
+
+(defsc Person [this {:person/keys [id name] :as props}]
+  {}
+  (dom/div
+    (dom/div "Name " name)))
+(def ui-person (comp/factory Person {:keyfn :person/id}))
+
+(defsc Sample [this {:keys [sample]}]
+  {}
+  (dom/div
+    (ui-person sample)))
 
 (defonce APP (app/fulcro-app))
 
 (defn ^:export init []
-      (app/mount! APP MyThings "app"))
+      (app/mount! APP Sample "app"))
 
 
 ; go from the bottom up into the repl
 (comment
+  (app/schedule-render! APP)
+  (reset! (::app/state-atom APP) {:my-things {:thing-category/id 1
+                                              :thing-category/name "Vehicles"}})
+
+
+  (app/schedule-render! APP)
+  (reset! (::app/state-atom APP) {:sample {:person/id 1
+                                           :person/name "Jill"}})
+
+
   (app/current-state APP)
   (swap! (::app/state-atom APP) update-in [:detail/id 1 :detail/likes] inc)
   (app/current-state APP)
