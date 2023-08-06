@@ -6,8 +6,8 @@
     [com.fulcrologic.fulcro.algorithms.merge :as merge]
     [com.fulcrologic.fulcro.algorithms.data-targeting :as targeting]))
 
-(defsc Detail [this {:detail/keys [id type year manufacturer breed] :as props}]
-  {:query [:detail/id :detail/type :detail/year :detail/manufacturer :detail/breed]
+(defsc Detail [this {:detail/keys [id type year manufacturer breed likes] :as props}]
+  {:query [:detail/id :detail/type :detail/year :detail/manufacturer :detail/breed :detail/likes]
    :ident :detail/id})
 
 (defsc Thing [this {:thing/keys [id name year detail] :as props}]
@@ -30,6 +30,10 @@
 
 ; go from the bottom up into the repl
 (comment
+  (app/current-state APP)
+  (swap! (::app/state-atom APP) update-in [:detail/id 1 :detail/likes] inc)
+  (app/current-state APP)
+  (swap! (::app/state-atom APP) assoc-in [:detail/id 1 :detail/likes] 1)
   (app/current-state APP)
   (swap! (::app/state-atom APP) assoc-in [:detail/id 1 :detail/manufacturer] "Honda")
   (app/current-state APP)
