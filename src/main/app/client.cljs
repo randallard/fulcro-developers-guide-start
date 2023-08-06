@@ -6,44 +6,37 @@
     [com.fulcrologic.fulcro.algorithms.merge :as merge]
     [com.fulcrologic.fulcro.algorithms.data-targeting :as targeting]))
 
-(defsc Car [this {:car/keys [id model] :as props}]
-  {}
-  (dom/div
-    "Model " model))
+(defsc ThingCategory [this {:thing-category/keys [id name] :as props}]
+  {:query [:thing-category/id :thing-category/name]
+   :ident :thing-category/id})
 
-(def ui-car (comp/factory Car {:keyfn :car/id}))
-(defsc Person [this {:person/keys [id name cars] :as props}]
-  {}
-  (dom/div
-    (dom/div "Name: " name)
-    (dom/h3 "Cars:")
-    (dom/ul
-      (map ui-car cars))))
+(defsc Thing [this {:thing/keys [id name] :as props}]
+  {:query [:thing/id :thing/name]
+   :ident :thing/id})
 
-(def ui-person (comp/factory Person {:keyfn :person/id}))
 
-(defsc Sample [this {:keys [sample]}]
-       {}
-       (dom/div (ui-person sample)))
+(defsc MyThings [this {:root/keys [thing-category]}]
+       {:query [{:root/thing-category (comp/get-query ThingCategory)}]})
 
 (defonce APP (app/fulcro-app))
 
 (defn ^:export init []
-      (app/mount! APP Sample "app"))
+      (app/mount! APP MyThings "app"))
 
+
+; go from the bottom up into the repl
 (comment
-  (keys APP)
-  (-> APP (::app/state-atom) deref)
-  (reset! (::app/state-atom APP) {:a 1})
-  (app/schedule-render! APP)
-  (reset! (::app/state-atom APP) {:sample {:person/id 1
-                                           :person/name "Joe"}})
-
-  (reset! (::app/state-atom APP) {:sample {:person/id 1
-                                           :person/name "Joe"
-                                           :person/cars [{:car/id 22
-                                                          :car/model "Escort"}
-                                                         {:car/id 23
-                                                          :car/model "Corolla"}]}})
+  #_(merge/merge-component! APP Thing {:thing/id 1
+                                     :thing/name "Trumpet"}
+                          :append [ :thing-category/id 3 :thing-category/things])
+  (app/current-state APP)
+  (merge/merge-component! APP ThingCategory {:thing-category/id 3
+                                             :thing-category/name "Toys"})
+  (merge/merge-component! APP ThingCategory {:thing-category/id 2
+                                             :thing-category/name "Animals"})
+  (merge/merge-component! APP ThingCategory {:thing-category/id 1
+                                             :thing-category/name "Vehicles"})
+  (app/current-state APP)
+  (reset! (::app/state-atom APP) {})
 
   )
