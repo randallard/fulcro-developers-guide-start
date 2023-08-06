@@ -6,8 +6,8 @@
     [com.fulcrologic.fulcro.algorithms.merge :as merge]
     [com.fulcrologic.fulcro.algorithms.data-targeting :as targeting]))
 
-(defsc Thing [this {:thing/keys [id name] :as props}]
-  {:query [:thing/id :thing/name]
+(defsc Thing [this {:thing/keys [id name year] :as props}]
+  {:query [:thing/id :thing/name :thing/year]
    :ident :thing/id})
 
 (defsc ThingCategory [this {:thing-category/keys [id name things] :as props}]
@@ -26,6 +26,12 @@
 
 ; go from the bottom up into the repl
 (comment
+  (app/current-state APP)
+  (swap! (::app/state-atom APP) assoc-in [:thing/id 3 :thing/year] 1990)
+  (swap! (::app/state-atom APP) assoc-in [:thing/id 1 :thing/year] 2023)
+  (app/current-state APP)
+  (swap! (::app/state-atom APP) assoc-in [:thing/id 5 :thing/year] 2014)
+
   (app/current-state APP)
   (merge/merge-component! APP Thing {:thing/id 5
                                      :thing/name "Honda Civic"}
