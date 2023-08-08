@@ -33,26 +33,27 @@
     (ui-thing-category my-things)))
 
 (defsc Car [this {:car/keys [id model] :as props}]
-       {}
+       {:query [:car/id :car/model]
+        :ident :car/id}
        (dom/div
          "Model: " model))
 
 (def ui-car (comp/factory Car {:kefn :car/id}))
 
-(defsc Person [this {:person/keys [id name] :as props}]
-       :query [:person/id :person/name]
-       :ident :person/id
+(defsc Person [this {:person/keys [id name cars] :as props}]
+     {:query [:person/id :person/name {:person/cars (comp/get-query Car)}]
+      :ident :person/id}
   (dom/div
     (dom/div "Name: " name)
-    #_#_(dom/h3 "Cars")
+    (dom/h3 "Cars")
     (dom/ul
       (map ui-car cars))))
 (def ui-person (comp/factory Person {:keyfn :person/id}))
 
-(defsc Sample [this {:keys [sample]}]
-  {}
+(defsc Sample [this {:root/keys [person]}]
+  {:query [{:root/person (comp/get-query Person)}]}
   (dom/div
-    (ui-person sample)))
+    (ui-person person)))
 
 (defonce APP (app/fulcro-app))
 
@@ -65,6 +66,50 @@
   #_#_(app/schedule-render! APP)
   (reset! (::app/state-atom APP) {:my-things {:thing-category/id 1
                                               :thing-category/name "Vehicles"}})
+
+  (app/current-state APP)
+  (merge/merge-component! APP Person {:person/id 2}
+                          :replace [:root/person])
+
+  (app/current-state APP)
+  (merge/merge-component! APP Car {:car/id 24}
+                          :append [:person/id 1 :person/cars])
+
+  (app/current-state APP)
+  (merge/merge-component! APP Car {:car/id 23}
+                          :append [:person/id 3 :person/cars])
+
+  (app/current-state APP)
+  (merge/merge-component! APP Person {:person/id 3
+                                      :person/name "Ted"
+                                      :person/cars [{:car/id 24
+                                                     :car/model "Tundra"}]}
+                          :replace [:root/person])
+
+  (app/current-state APP)
+  (merge/merge-component! APP Person {:person/id 2
+                                      :person/name "Sally"
+                                      :person/cars [{:car/id 23
+                                                     :car/model "RAV4"}]})
+
+  (app/current-state APP)
+  (merge/merge-component! APP Person {:person/id 1
+                                      :person/name "Jill"
+                                      :person/cars [{:car/id 22
+                                                     :car/model "Civic"}]})
+  (reset! (::app/state-atom APP) {})
+
+  (app/current-state APP)
+  (merge/merge-component! APP Person {:person/id 3
+                                      :person/name "Ted"})
+  (merge/merge-component! APP Person {:person/id 1
+                                      :person/name "Jill"})
+  (app/current-state APP)
+  (merge/merge-component! APP Person {:person/id 2
+                                      :person/name "Rhonda"})
+  (app/current-state APP)
+  (reset! (::app/state-atom APP) {})
+
 
   (app/schedule-render! APP)
   (reset! (::app/state-atom APP) {:sample {:person/id 1
