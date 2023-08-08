@@ -9,77 +9,144 @@
     [com.fulcrologic.fulcro.algorithms.merge :as merge]
     [com.fulcrologic.fulcro.algorithms.data-targeting :as targeting]))
 
+(defsc Detail [this {:detail/keys [id type year manufacturer breed likes] :as props}]
+  {:query [:detail/id :detail/type :detail/year :detail/manufacturer :detail/breed :detail/likes]
+   :ident :detail/id})
+
+(defsc Thing [this {:thing/keys [id name year detail] :as props}]
+  {:query [:thing/id :thing/name :thing/year {:thing/detail (comp/get-query Detail)}]
+   :ident :thing/id})
+
+(defsc ThingCategory [this {:thing-category/keys [id name things] :as props}]
+  {:query [:thing-category/id :thing-category/name {:thing-category/things (comp/get-query Thing)}]
+   :ident :thing-category/id}
+  (dom/div
+    (dom/h2 name)))
+
+(def ui-thing-category (comp/factory ThingCategory {:keyfn :thing-category/id}))
+
+(defsc MyThings [this {:root/keys [my-things]}]
+       {:query [{:root/my-things (comp/get-query ThingCategory)}]}
+  (dom/div
+    (dom/h1 "My Things")
+    (dom/p "I have " 1 " things")
+    (ui-thing-category my-things)))
+
 (defsc Car [this {:car/keys [id model] :as props}]
-  {:query [:car/id :car/model]
-   :ident :car/id})
-(def ui-car (comp/factory Car {:keyfn :car/id}))
+       {}
+       (dom/div
+         "Model: " model))
 
-(defsc Contact [this {:contact/keys [id email phone-number] :as props}]
-  {:query [:contact/id :contact/email :contact/phone-number]
-   :ident :contact/id})
-(def ui-contact (comp/factory Contact {:keyfn :contact/id}))
+(def ui-car (comp/factory Car {:kefn :car/id}))
 
-(defsc SecondaryContacts [this {:secondary-contacts/keys [id contacts]}]
-  {:query [:secondary-contacts/id {:secondary-contacts/contacts (comp/get-query Contact)}]
-   :ident :secondary-contacts/id})
-(def ui-secondary-contacts (comp/factory SecondaryContacts))
-
-(defsc Book [this {:book/keys [id name] :as props}]
-  {:query [:book/id :book/name]
-   :ident :book/id})
-(def ui-book (comp/factory Book {:keyfn :book/id}))
-
-#_(defsc Hand [this {:hand/keys [id cards] :as props}]
-  {:query [:hand/id {:hand/cards (comp/get-query deck/Card)}]
-   :ident :hand/id})
-
-(defsc Person [this {:person/keys [id name cars books contact] :as props}]
-  {:query [:person/id :person/name {:person/cars (comp/get-query Car)}
-                    {:person/books (comp/get-query Book)}
-                    {:person/contact (comp/get-query Contact)}
-                    {:person/secondary-contacts (comp/get-query Contact)}]
-   :ident :person/id})
-
+(defsc Person [this {:person/keys [id name] :as props}]
+       :query [:person/id :person/name]
+       :ident :person/id
+  (dom/div
+    (dom/div "Name: " name)
+    #_#_(dom/h3 "Cars")
+    (dom/ul
+      (map ui-car cars))))
 (def ui-person (comp/factory Person {:keyfn :person/id}))
 
-(defsc Sample [this {:root/keys [person]}]
-       {:query [{:root/person (comp/get-query Person)}]}
-       (dom/div (ui-person person)))
+(defsc Sample [this {:keys [sample]}]
+  {}
+  (dom/div
+    (ui-person sample)))
 
 (defonce APP (app/fulcro-app))
 
 (defn ^:export init []
       (app/mount! APP Sample "app"))
 
+
+; go from the bottom up into the repl
 (comment
+  #_#_(app/schedule-render! APP)
+  (reset! (::app/state-atom APP) {:my-things {:thing-category/id 1
+                                              :thing-category/name "Vehicles"}})
 
-  ; set table
-  (reset! (::app/state-atom APP) {})
-  (app/current-state APP)
-  (merge/merge-component! APP table/Table {:table/id 1
-                          :table/game "war"
-                          :table/deck (conj (deck/get-deck "poker") [:deck/id 1])
-                          :table/players (table/get-players 4)})
-
-  ; get deck for table
-
-  (merge/merge-component! APP deck/Deck (conj (deck/get-deck "poker") [:deck/id 1]))
-
-  ; other notes
-
-  (keys APP)
-  (-> APP (::app/state-atom) deref)
-  (reset! (::app/state-atom APP) {:a 1})
   (app/schedule-render! APP)
   (reset! (::app/state-atom APP) {:sample {:person/id 1
-                                           :person/name "Joe"}})
-
-  (reset! (::app/state-atom APP) {:sample {:person/id 1
-                                           :person/name "Joe"
+                                           :person/name "Jill"
                                            :person/cars [{:car/id 22
-                                                          :car/model "Escort"}
-                                                         {:car/id 23
-                                                          :car/model "Corolla"}]}})
+                                                          :car/model "Civic"}]}})
+
+
+  (app/current-state APP)
+  (swap! (::app/state-atom APP) update-in [:detail/id 1 :detail/likes] inc)
+  (app/current-state APP)
+  (swap! (::app/state-atom APP) assoc-in [:detail/id 1 :detail/likes] 1)
+  (app/current-state APP)
+  (swap! (::app/state-atom APP) assoc-in [:detail/id 1 :detail/manufacturer] "Honda")
+  (app/current-state APP)
+  (swap! (::app/state-atom APP) assoc-in [:detail/id 1 :detail/year] 2014)
+  (app/current-state APP)
+  (swap! (::app/state-atom APP) assoc-in [:thing/id 5 :thing/name] "Civic")
+  (app/current-state APP)
+  (swap! (::app/state-atom APP) assoc-in [:thing/id 2 :thing/name] "Switch")
+
+  (app/current-state APP)
+  ; detail: id type year manufacturer breed
+  (merge/merge-component! APP Detail {:detail/id 4
+                                      :detail/type "Video Game System"
+                                      :detail/manufacturer "Nintendo"
+                                      :detail/year 2023}
+                          :append [ :thing/id 2 :thing/detail])
+  (app/current-state APP)
+  ; detail: id type year manufacturer breed
+  (merge/merge-component! APP Detail {:detail/id 3
+                                      :detail/type "Motorcycle"
+                                      :detail/manufacturer "Harley-Davidson"
+                                      :detail/year 1990}
+                          :append [ :thing/id 3 :thing/detail])
+  (app/current-state APP)
+  ; detail: id type year manufacturer breed
+  (merge/merge-component! APP Detail {:detail/id 2
+                                      :detail/type "Cow"
+                                      :detail/breed "Guernsey"}
+                          :append [ :thing/id 4 :thing/detail])
+  (app/current-state APP)
+  ; detail: id type year manufacturer breed
+  (merge/merge-component! APP Detail {:detail/id 1
+                                     :detail/type "Car"}
+                          :append [ :thing/id 5 :thing/detail])
+
+  (app/current-state APP)
+  (swap! (::app/state-atom APP) assoc-in [:thing/id 3 :thing/year] 1990)
+  (swap! (::app/state-atom APP) assoc-in [:thing/id 1 :thing/year] 2023)
+  (app/current-state APP)
+  (swap! (::app/state-atom APP) assoc-in [:thing/id 5 :thing/year] 2014)
+
+  (app/current-state APP)
+  (merge/merge-component! APP Thing {:thing/id 5
+                                     :thing/name "Honda Civic"}
+                          :append [ :thing-category/id 1 :thing-category/things])
+  (app/current-state APP)
+  (merge/merge-component! APP Thing {:thing/id 4
+                                     :thing/name "Morna"}
+                          :append [ :thing-category/id 2 :thing-category/things])
+  (app/current-state APP)
+  (merge/merge-component! APP Thing {:thing/id 3
+                                     :thing/name "Motorcycle"}
+                          :append [ :thing-category/id 1 :thing-category/things])
+  (app/current-state APP)
+  (merge/merge-component! APP Thing {:thing/id 2
+                                     :thing/name "Nintendo Switch"}
+                          :append [ :thing-category/id 3 :thing-category/things])
+  (app/current-state APP)
+  (merge/merge-component! APP Thing {:thing/id 1
+                                     :thing/name "Trumpet"}
+                          :append [ :thing-category/id 3 :thing-category/things])
+  (app/current-state APP)
+  (merge/merge-component! APP ThingCategory {:thing-category/id 3
+                                             :thing-category/name "Toys"})
+  (merge/merge-component! APP ThingCategory {:thing-category/id 2
+                                             :thing-category/name "Animals"})
+  (merge/merge-component! APP ThingCategory {:thing-category/id 1
+                                             :thing-category/name "Vehicles"})
+  (app/current-state APP)
+  (reset! (::app/state-atom APP) {})
 
   ; Normalization
   (reset! (::app/state-atom APP) {})
