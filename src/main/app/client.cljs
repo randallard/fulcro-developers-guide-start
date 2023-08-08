@@ -34,7 +34,10 @@
 
 (defsc Car [this {:car/keys [id model] :as props}]
        {:query [:car/id :car/model]
-        :ident :car/id}
+        :ident :car/id
+        :initial-state (fn [{:keys [id model]}]
+                           {:car/id id
+                            :car/model model})}
        (dom/div
          "Model: " model))
 
@@ -42,7 +45,14 @@
 
 (defsc Person [this {:person/keys [id name age cars] :as props}]
      {:query [:person/id :person/name :person/age {:person/cars (comp/get-query Car)}]
-      :ident :person/id}
+      :ident :person/id
+      :initial-state (fn [{:keys [id name]}]
+                         {:person/id id
+                          :person/name name
+                          :person/age 0
+                          :person/cars [(comp/get-initial-state Car {:id 40 :model "Leaf"})
+                                        (comp/get-initial-state Car {:id 41 :model "Civic"})
+                                        (comp/get-initial-state Car {:id 42 :model "RAV4"})]})}
   (dom/div
     (dom/div "Name: " name)
     (dom/div "Age: " age)
@@ -52,7 +62,8 @@
 (def ui-person (comp/factory Person {:keyfn :person/id}))
 
 (defsc Sample [this {:root/keys [person]}]
-  {:query [{:root/person (comp/get-query Person)}]}
+  {:query [{:root/person (comp/get-query Person)}]
+   :initial-state (fn [_] {:root/person (comp/get-initial-state Person {:id 1 :name "Bob"})})}
   (dom/div
     (ui-person person)))
 
@@ -67,6 +78,9 @@
   #_#_(app/schedule-render! APP)
   (reset! (::app/state-atom APP) {:my-things {:thing-category/id 1
                                               :thing-category/name "Vehicles"}})
+
+  ;refresh browser after getting initial state
+  (comp/get-initial-state Sample)
 
   (app/schedule-render! APP)
   (swap! (::app/state-atom APP) update-in [:person/id 3 :person/age] inc)
