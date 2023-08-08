@@ -40,11 +40,12 @@
 
 (def ui-car (comp/factory Car {:kefn :car/id}))
 
-(defsc Person [this {:person/keys [id name cars] :as props}]
-     {:query [:person/id :person/name {:person/cars (comp/get-query Car)}]
+(defsc Person [this {:person/keys [id name age cars] :as props}]
+     {:query [:person/id :person/name :person/age {:person/cars (comp/get-query Car)}]
       :ident :person/id}
   (dom/div
     (dom/div "Name: " name)
+    (dom/div "Age: " age)
     (dom/h3 "Cars")
     (dom/ul
       (map ui-car cars))))
@@ -67,9 +68,14 @@
   (reset! (::app/state-atom APP) {:my-things {:thing-category/id 1
                                               :thing-category/name "Vehicles"}})
 
+  (app/schedule-render! APP)
+  (swap! (::app/state-atom APP) update-in [:person/id 3 :person/age] inc)
+
   (app/current-state APP)
-  (merge/merge-component! APP Person {:person/id 2}
+  (merge/merge-component! APP Person {:person/id 3}
                           :replace [:root/person])
+
+  (swap! (::app/state-atom APP) assoc-in [:person/id 3 :person/age] 42)
 
   (app/current-state APP)
   (merge/merge-component! APP Car {:car/id 24}
