@@ -7,6 +7,7 @@
     [com.fulcrologic.fulcro.components :as comp :refer [defsc]]
     [com.fulcrologic.fulcro.dom :as dom]
     [com.fulcrologic.fulcro.algorithms.merge :as merge]
+    [com.fulcrologic.fulcro.mutations :as m :refer [defmutation]]
     [com.fulcrologic.fulcro.algorithms.data-targeting :as targeting]))
 
 (defsc Detail [this {:detail/keys [id type year manufacturer breed likes] :as props}]
@@ -42,6 +43,11 @@
 
 (def ui-car (comp/factory Car {:kefn :car/id}))
 
+
+(defmutation make-older [{:person/keys [id]}]
+             (action [{:keys [state]}]
+                     (swap! state update-in [:person/id id :person/age] inc)))
+
 (defsc Person [this {:person/keys [id name age cars] :as props}]
      {:query [:person/id :person/name :person/age {:person/cars (comp/get-query Car)}]
       :ident :person/id
@@ -54,6 +60,7 @@
   (dom/div
     (dom/div "Name: " name)
     (dom/div "Age: " age)
+    (dom/button {:onClick #(comp/transact! this [(make-older {:person/id id})])} "Make older")
     (dom/h3 "Cars")
     (dom/ul
       (map ui-car cars))))
@@ -71,14 +78,24 @@
       (app/mount! APP Sample "app"))
 
 
+
 ; go from the bottom up into the repl
 (comment
   #_#_(app/schedule-render! APP)
   (reset! (::app/state-atom APP) {:my-things {:thing-category/id 1
                                               :thing-category/name "Vehicles"}})
 
+  (app/current-state APP)
+  (comp/transact! APP  [(make-older {:person/id 2})])
+  (make-older {:a 1})                                       ; returns itself as data
+  (app/current-state APP)
+  (merge/merge-component! APP Person {:person/id 2
+                                      :person/name "Sally"
+                                      :person/age 0})
+
   ;refresh browser after getting initial state
   (comp/get-initial-state Sample)
+
 
   (app/schedule-render! APP)
   (swap! (::app/state-atom APP) update-in [:person/id 3 :person/age] inc)
