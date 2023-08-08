@@ -43,11 +43,6 @@
 
 (def ui-car (comp/factory Car {:kefn :car/id}))
 
-
-(defmutation make-older [{:person/keys [id]}]
-             (action [{:keys [state]}]
-                     (swap! state update-in [:person/id id :person/age] inc)))
-
 (defsc Person [this {:person/keys [id name age cars] :as props}]
      {:query [:person/id :person/name :person/age {:person/cars (comp/get-query Car)}]
       :ident :person/id
@@ -60,7 +55,7 @@
   (dom/div
     (dom/div "Name: " name)
     (dom/div "Age: " age)
-    (dom/button {:onClick #(comp/transact! this [(make-older {:person/id id})])} "Make older")
+    (dom/button {:onClick #(comp/transact! this `[(make-older ~{:person/id id})])} "Make older")
     (dom/h3 "Cars")
     (dom/ul
       (map ui-car cars))))
@@ -78,6 +73,9 @@
       (app/mount! APP Sample "app"))
 
 
+(defmutation make-older [{:person/keys [id]}]
+     (action [{:keys [state]}]
+             (swap! state update-in [:person/id id :person/age] inc)))
 
 ; go from the bottom up into the repl
 (comment
