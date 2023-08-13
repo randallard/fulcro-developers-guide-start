@@ -58,12 +58,15 @@
     (dom/button {:onClick #(comp/transact! this `[(make-older ~{:person/id id})])} "Make older")
     (dom/h3 "Cars")
     (dom/ul
-      (map ui-car cars))))
+      (map ui-car cars)
+      (dom/div
+        (dom/button {:onClick #(comp/transact! this `[(add-car ~{:person/id id})])} "Add Car")))))
 (def ui-person (comp/factory Person {:keyfn :person/id}))
+
 
 (defsc Sample [this {:root/keys [person]}]
   {:query [{:root/person (comp/get-query Person)}]
-   :initial-state {:root/person {:id 1 :name "Bob"}}}
+   :initial-state {:root/person {:id 1 :name "Tila" :age 38}}}
   (dom/div
     (ui-person person)))
 
@@ -76,6 +79,15 @@
 (defmutation make-older [{:person/keys [id]}]
      (action [{:keys [state]}]
              (swap! state update-in [:person/id id :person/age] inc)))
+
+(defmutation add-car [{:person/keys [id]}]
+  (action [{:keys [state]}]
+          (print "add car to person with id: " id)
+          (let [new-key (inc (first (apply max-key val (:car/id (app/current-state APP)))))]
+            (print "new key: " new-key)
+            (merge/merge-component! APP Car {:car/id new-key
+                                             :car/model (str "model-" new-key)}
+                                    :append [:person/id id :person/cars]))))
 
 ; go from the bottom up into the repl
 (comment
