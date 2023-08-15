@@ -48,15 +48,15 @@
       :ident :person/id
       :initial-state {:person/id :param/id
                       :person/name :param/name
-                      :person/age 0
+                      :person/age :param/age
                       :person/cars [{:id 40 :model "Leaf"}
                                     {:id 41 :model "Civic"}
                                     {:id 42 :model "RAV4"}]}
-      :componentDidMount (fn [this]
-                             (let [p (comp/props this)]
-                                  (print "Mounted" p)
-                                  (js/console.log "Mounted (re-printing)" p)))
+      :initLocalState (fn [this props]
+                          {:a 2})
       }
+       (let [s (comp/get-state this)]
+            (print "state" s)
   (dom/div
     (dom/div "Name: " name)
     (dom/div "Age: " age)
@@ -65,7 +65,7 @@
     (dom/ul
       (map ui-car cars)
       (dom/div
-        (dom/button {:onClick #(comp/transact! this `[(add-car ~{:person/id id})])} "Add Car")))))
+        (dom/button {:onClick #(comp/transact! this `[(add-car ~{:person/id id})])} "Add Car"))))))
 (def ui-person (comp/factory Person {:keyfn :person/id}))
 
 
