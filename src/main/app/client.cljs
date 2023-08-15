@@ -53,10 +53,9 @@
                                     {:id 41 :model "Civic"}
                                     {:id 42 :model "RAV4"}]}
       :initLocalState (fn [this props]
-                          {:onClick (fn [evt] (print "Click"))})
+                          {:onClick (fn [evt] (print "Click" props stat))})
       }
        (let [onClick (comp/get-state this :onClick)]
-            (print "state" s)
             (dom/div
               (dom/div
                 (dom/label {:onClick onClick} "Name: ")
@@ -70,12 +69,22 @@
                   (dom/button {:onClick #(comp/transact! this `[(add-car ~{:person/id id})])} "Add Car"))))))
 (def ui-person (comp/factory Person {:keyfn :person/id}))
 
-
-(defsc Sample [this {:root/keys [person]}]
-  {:query [{:root/person (comp/get-query Person)}]
-   :initial-state {:root/person {:id 1 :name "Tila" :age 38}}}
+(defsc PersonList [this {:person-list/keys [people] :as props}]
+       {:query [{:person-list/people (comp/get-query Person)}]
+        :ident (fn [_ _] [:component/id ::person-list])
+        :initial-state {:person-list/people [{:id 1 :name "Jo" :age 43}
+                                             {:id 2 :name "Sally" :age 23}]}}
+       (dom/div
+         (dom/h3 "People")
+         (map ui-person people)))
+(def ui-person-list (comp/factory PersonList))
+(defsc Sample [this {:root/keys [people]}]
+  {:query [{:root/people (comp/get-query PersonList)}]
+   :initial-state {:root/people {}}}
   (dom/div
-    (ui-person person)))
+    (when people
+          (ui-person-list people))
+    ))
 
 (defonce APP (app/fulcro-app))
 
