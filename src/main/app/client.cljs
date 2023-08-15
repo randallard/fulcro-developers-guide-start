@@ -1,14 +1,21 @@
 (ns app.client
   (:require
+    ["react-motion" :refer [Motion spring]]
+    ["react-number-format" :default NumberFormat]
     [app.table :as table]
     [app.deck :as deck]
     [app.player :as player]
     [com.fulcrologic.fulcro.application :as app]
+    [com.fulcrologic.fulcro.react.version18 :refer [with-react18]]
+    ["react-dom/client" :as dom-client]
     [com.fulcrologic.fulcro.components :as comp :refer [defsc]]
     [com.fulcrologic.fulcro.dom :as dom]
     [com.fulcrologic.fulcro.algorithms.merge :as merge]
+    [com.fulcrologic.fulcro.algorithms.react-interop :as interop]
     [com.fulcrologic.fulcro.mutations :as m :refer [defmutation]]
     [com.fulcrologic.fulcro.algorithms.data-targeting :as targeting]))
+
+(def ui-number-format (interop/react-factory NumberFormat))
 
 (defsc Detail [this {:detail/keys [id type year manufacturer breed likes] :as props}]
   {:query [:detail/id :detail/type :detail/year :detail/manufacturer :detail/breed :detail/likes]
@@ -43,6 +50,22 @@
 
 (def ui-car (comp/factory Car {:kefn :car/id}))
 
+(def ui-motion (interop/react-factory Motion))
+
+(defsc Block [this {:block/keys [name]} {:keys [top]}]
+       {:query         [:block/id :block/name]
+        :ident         :block/id
+        :initial-state {:block/id   1
+                        :block/name "A Block"}}
+       (dom/div {:style {:position "relative"
+                         :top      top}}
+                (dom/div
+                  (dom/label "Name?")
+                  (dom/input {:value    name
+                              :onChange #(m/set-string! this :block/name :event %)}))))
+
+(def ui-block (comp/factory Block {:keyfn :id}))
+
 (defsc Person [this {:person/keys [id name age cars] :as props}]
      {:query [:person/id :person/name :person/age {:person/cars (comp/get-query Car)}]
       :ident :person/id
@@ -53,7 +76,7 @@
                                     {:id 41 :model "Civic"}
                                     {:id 42 :model "RAV4"}]}
       :initLocalState (fn [this props]
-                          {:onClick (fn [evt] (print "Click" props stat))})
+                          {:onClick (fn [evt] (print "Click" props))})
       }
        (let [onClick (comp/get-state this :onClick)]
             (dom/div
@@ -62,7 +85,11 @@
                 name )
               (dom/div "Age: " age)
               (dom/button {:onClick #(comp/transact! this `[(make-older ~{:person/id id})])} "Make older")
-              (dom/h3 "Cars")
+              (dom/div
+                       (dom/label "Some Dollars:")
+                       #_(ui-number-format {:thousandSeparator true
+                                          :prefix "$"}))
+              #_#_(dom/h3 "Cars")
               (dom/ul
                 (map ui-car cars)
                 (dom/div
@@ -86,10 +113,35 @@
           (ui-person-list people))
     ))
 
-(defonce APP (app/fulcro-app))
+(defsc Demo [this {:keys [ui/slid? block]}]
+       {:query         [:ui/slid? {:block (comp/get-query Block)}]
+        :initial-state {:ui/slid? false :block {:id 1 :name "N"}}
+        :ident         (fn [] [:control :demo])}
+       (dom/div {:style {:overflow      "hidden"
+                         :height        "150px"
+                         :margin        "5px"
+                         :padding       "5px"
+                         :border        "1px solid black"
+                         :borderRadius "10px"}}
+                (dom/button {:onClick (fn [] (m/toggle! this :ui/slid?))} "Toggle")
+                (ui-motion {:style {"y" (spring (if slid? 175 0))}}
+                           (fn [p]
+                               (let [y (comp/isoget p "y")]
+                                    ; The binding wrapper ensures that internal fulcro bindings are held within the lambda
+                                    (comp/with-parent-context this
+                                                              (dom/div :.demo
+                                                                       (ui-block (comp/computed block {:top y})))))))))
+
+(def ui-demo (comp/factory Demo))
+(defsc Root [this {:root/keys [demo] :as props}]
+       {:query         [{:root/demo (comp/get-query Demo)}]
+        :initial-state {:root/demo {}}}
+       (ui-demo demo))
+
+(defonce APP (-> (app/fulcro-app) (with-react18)))
 
 (defn ^:export init []
-      (app/mount! APP Sample "app"))
+      (app/mount! APP Root "app"))
 
 
 (defmutation make-older [{:person/keys [id]}]
