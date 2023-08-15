@@ -51,7 +51,12 @@
                       :person/age 0
                       :person/cars [{:id 40 :model "Leaf"}
                                     {:id 41 :model "Civic"}
-                                    {:id 42 :model "RAV4"}]}}
+                                    {:id 42 :model "RAV4"}]}
+      :componentDidMount (fn [this]
+                             (let [p (comp/props this)]
+                                  (print "Mounted" p)
+                                  (js/console.log "Mounted (re-printing)" p)))
+      }
   (dom/div
     (dom/div "Name: " name)
     (dom/div "Age: " age)
