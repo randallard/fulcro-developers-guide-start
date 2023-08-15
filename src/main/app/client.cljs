@@ -53,19 +53,21 @@
                                     {:id 41 :model "Civic"}
                                     {:id 42 :model "RAV4"}]}
       :initLocalState (fn [this props]
-                          {:a 2})
+                          {:onClick (fn [evt] (print "Click"))})
       }
-       (let [s (comp/get-state this)]
+       (let [onClick (comp/get-state this :onClick)]
             (print "state" s)
-  (dom/div
-    (dom/div "Name: " name)
-    (dom/div "Age: " age)
-    (dom/button {:onClick #(comp/transact! this `[(make-older ~{:person/id id})])} "Make older")
-    (dom/h3 "Cars")
-    (dom/ul
-      (map ui-car cars)
-      (dom/div
-        (dom/button {:onClick #(comp/transact! this `[(add-car ~{:person/id id})])} "Add Car"))))))
+            (dom/div
+              (dom/div
+                (dom/label {:onClick onClick} "Name: ")
+                name )
+              (dom/div "Age: " age)
+              (dom/button {:onClick #(comp/transact! this `[(make-older ~{:person/id id})])} "Make older")
+              (dom/h3 "Cars")
+              (dom/ul
+                (map ui-car cars)
+                (dom/div
+                  (dom/button {:onClick #(comp/transact! this `[(add-car ~{:person/id id})])} "Add Car"))))))
 (def ui-person (comp/factory Person {:keyfn :person/id}))
 
 
