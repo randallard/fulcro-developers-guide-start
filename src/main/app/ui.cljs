@@ -20,7 +20,7 @@
    (fn [{:keys [id label]}]
      {:list/id     id
       :list/label  label
-      :list/people (if (= id :friends)
+      :list/people (if (= id :farm)
                      [(comp/get-initial-state Person {:id 1 :name "Sally" :age 32})
                       (comp/get-initial-state Person {:id 2 :name "Joe" :age 22})]
                      [(comp/get-initial-state Person {:id 3 :name "Fred" :age 11})
@@ -33,11 +33,12 @@
 
 (def ui-person-list (comp/factory PersonList))
 
-(defsc Root [this {:keys [friends enemies]}]
-  {:query         [{:friends (comp/get-query PersonList)}
-                   {:enemies (comp/get-query PersonList)}]
-   :initial-state (fn [params] {:friends (comp/get-initial-state PersonList {:id :friends :label "Friends"})
-                                :enemies (comp/get-initial-state PersonList {:id :enemies :label "Enemies"})})}
+(defsc Root [this {:keys [farm fun]}]
+  {:query         [{:farm (comp/get-query PersonList)}
+                   {:fun  (comp/get-query PersonList)}]
+   :initial-state (fn [params] {:farm (comp/get-initial-state PersonList {:id :farm :label "Farm"})
+                                :fun (comp/get-initial-state PersonList {:id :fun :label "Fun"})})}
   (dom/div
-    (ui-person-list friends)
-    (ui-person-list enemies)))
+    (dom/h2 "Our Stuff")
+    (ui-person-list farm)
+    (ui-person-list fun)))
