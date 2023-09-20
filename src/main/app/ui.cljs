@@ -4,41 +4,41 @@
     [com.fulcrologic.fulcro.components :as comp :refer [defsc]]
     [com.fulcrologic.fulcro.dom :as dom]))
 
-(defsc Person [this {:person/keys [id name age] :as props} {:keys [onDelete]}]
-  {:query         [:person/id :person/name :person/age] ; (2)
-   :ident         (fn [] [:person/id (:person/id props)]) ; (1)
-   :initial-state (fn [{:keys [id name age] :as params}] {:person/id id :person/name name :person/age age})} ; (3)
+(defsc Thing [this {:thing/keys [id name] :as props} {:keys [onDelete]}]
+  {:query         [:thing/id :thing/name] ; (2)
+   :ident         (fn [] [:thing/id (:thing/id props)]) ; (1)
+   :initial-state (fn [{:keys [id name] :as params}] {:thing/id id :thing/name name})} ; (3)
   (dom/li
-    (dom/h5 (str name " (age: " age ") ") (dom/button {:onClick #(onDelete id)} " delete ")))) ; (4)
+    (dom/h5 (str name " ") (dom/button {:onClick #(onDelete id)} " delete ")))) ; (4)
 
-(def ui-person (comp/factory Person {:keyfn :person/id}))
+(def ui-thing (comp/factory Thing {:keyfn :thing/id}))
 
-(defsc PersonList [this {:list/keys [id label people] :as props}]
-  {:query [:list/id :list/label {:list/people (comp/get-query Person)}] ; (5)
+(defsc ThingList [this {:list/keys [id label things] :as props}]
+  {:query [:list/id :list/label {:list/things (comp/get-query Thing)}] ; (5)
    :ident (fn [] [:list/id (:list/id props)])
    :initial-state
    (fn [{:keys [id label]}]
      {:list/id     id
       :list/label  label
-      :list/people (if (= id :farm)
-                     [(comp/get-initial-state Person {:id 1 :name "Sally" :age 32})
-                      (comp/get-initial-state Person {:id 2 :name "Joe" :age 22})]
-                     [(comp/get-initial-state Person {:id 3 :name "Fred" :age 11})
-                      (comp/get-initial-state Person {:id 4 :name "Bobby" :age 55})])})}
-  (let [delete-person (fn [person-id] (comp/transact! this [(api/delete-person {:list/id id :person/id person-id})]))] ; (4)
+      :list/things (if (= id :farm)
+                     [(comp/get-initial-state Thing {:id 1 :name "Sally"})
+                      (comp/get-initial-state Thing {:id 2 :name "Joe"})]
+                     [(comp/get-initial-state Thing {:id 3 :name "Fred"})
+                      (comp/get-initial-state Thing {:id 4 :name "Bobby"})])})}
+  (let [delete-person (fn [person-id] (comp/transact! this [(api/delete-person {:list/id id :thing/id person-id})]))] ; (4)
     (dom/div
       (dom/h4 label)
       (dom/ul
-        (map #(ui-person (comp/computed % {:onDelete delete-person})) people)))))
+        (map #(ui-thing (comp/computed % {:onDelete delete-person})) things)))))
 
-(def ui-person-list (comp/factory PersonList))
+(def ui-thing-list (comp/factory ThingList))
 
 (defsc Root [this {:keys [farm fun]}]
-  {:query         [{:farm (comp/get-query PersonList)}
-                   {:fun  (comp/get-query PersonList)}]
-   :initial-state (fn [params] {:farm (comp/get-initial-state PersonList {:id :farm :label "Farm"})
-                                :fun (comp/get-initial-state PersonList {:id :fun :label "Fun"})})}
+  {:query         [{:farm (comp/get-query ThingList)}
+                   {:fun  (comp/get-query ThingList)}]
+   :initial-state (fn [params] {:farm (comp/get-initial-state ThingList {:id :farm :label "Farm"})
+                                :fun (comp/get-initial-state ThingList {:id :fun :label "Fun"})})}
   (dom/div
     (dom/h2 "Our Stuff")
-    (ui-person-list farm)
-    (ui-person-list fun)))
+    (ui-thing-list farm)
+    (ui-thing-list fun)))
