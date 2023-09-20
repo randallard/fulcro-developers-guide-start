@@ -21,15 +21,15 @@
      {:list/id     id
       :list/label  label
       :list/things (if (= id :farm)
-                     [(comp/get-initial-state Thing {:id 1 :name "Sally"})
-                      (comp/get-initial-state Thing {:id 2 :name "Joe"})]
-                     [(comp/get-initial-state Thing {:id 3 :name "Fred"})
-                      (comp/get-initial-state Thing {:id 4 :name "Bobby"})])})}
-  (let [delete-person (fn [person-id] (comp/transact! this [(api/delete-person {:list/id id :thing/id person-id})]))] ; (4)
+                     [(comp/get-initial-state Thing {:id 1 :name "Tractor"})
+                      (comp/get-initial-state Thing {:id 2 :name "Morna"})]
+                     [(comp/get-initial-state Thing {:id 3 :name "Trumpet"})
+                      (comp/get-initial-state Thing {:id 4 :name "Harley"})])})}
+  (let [delete-thing (fn [thing-id] (comp/transact! this [(api/delete-thing {:list/id id :thing/id thing-id})]))] ; (4)
     (dom/div
       (dom/h4 label)
       (dom/ul
-        (map #(ui-thing (comp/computed % {:onDelete delete-person})) things)))))
+        (map #(ui-thing (comp/computed % {:onDelete delete-thing})) things)))))
 
 (def ui-thing-list (comp/factory ThingList))
 
