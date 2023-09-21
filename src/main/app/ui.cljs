@@ -5,7 +5,7 @@
     [com.fulcrologic.fulcro.dom :as dom]))
 
 (defsc Root [this {:keys [farm fun]}]
-  {:query         [{:farm (comp/get-query things/ThingList)}
+  {:query         [{:farm (comp/get-query ThingList)}
                    {:fun  (comp/get-query ThingList)}]
    :initial-state (fn [params] {:farm (comp/get-initial-state ThingList {:id :farm :label "Farm"})
                                 :fun (comp/get-initial-state ThingList {:id :fun :label "Fun"})})}
