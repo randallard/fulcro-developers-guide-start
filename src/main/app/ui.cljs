@@ -33,11 +33,13 @@
 
 (def ui-person-list (comp/factory PersonList))
 
-(defsc Root [this {:keys [friends enemies]}]
-  {:query         [{:friends (comp/get-query PersonList)}
+(defsc Root [this {:keys [friends enemies rebels]}]
+  {:query         [{:rebels (comp/get-query PersonList)}
+                   {:friends (comp/get-query PersonList)}
                    {:enemies (comp/get-query PersonList)}]
    :initial-state (fn [params] {:friends (comp/get-initial-state PersonList {:id :friends :label "Friends"})
                                 :enemies (comp/get-initial-state PersonList {:id :enemies :label "Enemies"})})}
   (dom/div
+    (ui-person-list rebels)
     (ui-person-list friends)
     (ui-person-list enemies)))
