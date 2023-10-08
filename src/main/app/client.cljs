@@ -21,6 +21,10 @@
 
 (comment
   (app/current-state app)
+  (merge/merge-component! app ui/Person #:person{:id 6 :name "Scorpia" :age 26})
+  (merge/merge-component! app ui/PersonList #:list{:id :enemies :label "Enemies" :people [[:person/id 6] [:person/id 3]]})
+
+  (app/current-state app)
   (merge/merge-component! app ui/Person #:person{:id 5 :name "Bo" :age 22})
   (merge/merge-component! app ui/PersonList #:list{:id :rebels :label "Rebels" :people [[:person/id 5] [:person/id 1]]})
 
